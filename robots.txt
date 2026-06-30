@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://bazioracle.net/sitemap.xml

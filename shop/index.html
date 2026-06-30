@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+  <!-- ★ 语言检测脚本（必须在CSS前运行，防止双语同时显示）-->
+  <style id="ls">.zh{display:none!important}</style>
+  <script>(function(){var z=new URLSearchParams(location.search).get('lang')==='zh';document.documentElement.lang=z?'zh-CN':'en';if(z){document.getElementById('ls').textContent='.en{display:none!important}';}})();</script>
+  <!-- ★ End language detection -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Element Balancing Shop — Crystals & Feng Shui Products | BaZi Oracle</title>
+<meta name="description" content="Shop crystals, jade jewellery and feng shui products selected to strengthen your missing BaZi elements. Organised by Wood, Fire, Earth, Metal and Water energy.">
+<link rel="canonical" href="https://getbazioracle.com/shop/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+
+<header class="shop-hero">
+  <div class="container">
+    <p class="section-label" style="display:block;margin-bottom:.75rem">
+      <span class="en">★ Element Shop</span><span class="zh">★ 五行商品店</span>
+    </p>
+    <h1>
+      <span class="en">Balance Your Five Elements</span>
+      <span class="zh">平衡你的五行</span>
+    </h1>
+    <p>
+      <span class="en">Handpicked crystals, jade jewellery and feng shui objects — each selected to strengthen a specific elemental energy in your BaZi chart. Not sure what you need?</span>
+      <span class="zh">精心挑选的水晶、玉石饰品和风水摆件——每一件都专为强化特定五行能量而选。不确定自己需要什么？</span>
+      <a href="/calculator/" style="color:var(--gold);text-decoration:underline">
+        <span class="en">Get a free reading first →</span>
+        <span class="zh">先免费测算命盘 →</span>
+      </a>
+    </p>
+    <div class="elem-filters" style="margin-top:1.75rem">
+      <button class="ef active" onclick="filterEl('all',this)"><span class="en">All Elements</span><span class="zh">全部五行</span></button>
+      <button class="ef" onclick="filterEl('wood',this)" style="border-color:rgba(61,107,71,.4)">🌿 <span class="en">Wood</span><span class="zh">木</span></button>
+      <button class="ef" onclick="filterEl('fire',this)" style="border-color:rgba(168,50,50,.4)">🔥 <span class="en">Fire</span><span class="zh">火</span></button>
+      <button class="ef" onclick="filterEl('earth',this)" style="border-color:rgba(201,168,76,.4)">⛰️ <span class="en">Earth</span><span class="zh">土</span></button>
+      <button class="ef" onclick="filterEl('metal',this)" style="border-color:rgba(107,122,141,.4)">⚔️ <span class="en">Metal</span><span class="zh">金</span></button>
+      <button class="ef" onclick="filterEl('water',this)" style="border-color:rgba(44,82,130,.4)">🌊 <span class="en">Water</span><span class="zh">水</span></button>
+    </div>
+  </div>
+</header>
+
+<main style="padding:3rem 0 5rem">
+  <div class="container">
+
+    <!-- 店铺跳转横幅 / Store Banner -->
+    <div class="store-banner" id="store-banner">
+      <div>
+        <h2><span class="en">Visit Our Full Store</span><span class="zh">访问我们的完整店铺</span></h2>
+        <p>
+          <span class="en">Browse 100+ element-balancing products on our cross-border store.</span>
+          <span class="zh">在我们的跨境店铺浏览100+款五行平衡商品。</span>
+        </p>
+      </div>
+      <a href="#" class="btn btn-dark btn-lg" id="store-link" target="_blank" rel="noopener">
+        🛒 <span class="en">Shop Now →</span><span class="zh">立即购物 →</span>
+      </a>
+    </div>
+
+    <!-- 广告 / Ad -->
+    <div class="ad-wrap" style="margin-bottom:2rem"><!-- ADSENSE UNIT --></div>
+
+    <!-- 商品网格 / Products Grid -->
+    <div class="shop-grid" id="products-grid">
+
+      <!-- Water 水 -->
+      <article class="shop-product-card" data-element="water">
+        <div class="sp-img" style="background:linear-gradient(135deg,#1A3050,#2C5282)">💎</div>
+        <div class="sp-body">
+          <span class="tag tag-water" style="margin-bottom:.5rem;display:inline-block"><span class="en">Water Element</span><span class="zh">水元素</span></span>
+          <h3><span class="en">Black Obsidian Energy Bracelet</span><span class="zh">黑曜石能量手链</span></h3>
+          <p><span class="en">Raw obsidian beads for deep Water energy grounding. Absorbs negativity, sharpens intuition and supports emotional clarity.</span><span class="zh">天然黑曜石珠串，深度激活水元素。吸收负能量，提升直觉力，促进情绪清明。</span></p>
+          <div class="sp-footer">
+            <span class="sp-price">$28.00</span>
+            <a href="#" class="sp-buy water-buy" target="_blank" rel="noopener"><span class="en">Buy Now</span><span class="zh">立即购买</span></a>
+          </div>
+        </div>
+      </article>
+
+      <article class="shop-product-card" data-element="water">
+        <div class="sp-img" style="background:linear-gradient(135deg,#1A2E45,#2C5282)">🌊</div>
+        <div class="sp-body">
+          <span class="tag tag-water" style="margin-bottom:.5rem;display:inline-block"><span class="en">Water Element</span><span class="zh">水元素</span></span>
+          <h3><span class="en">Lapis Lazuli Lotus Earrings</span><span class="zh">青金石莲花耳环</span></h3>
+          <p><span class="en">Deep blue lapis lazuli set in silver. Enhances Water wisdom, truth, and deep intuitive insight for decision-making.</span><span class="zh">深蓝青金石镶银，增强水元素的智慧与洞察力，助力清明决策。</span></p>
+          <div class="sp-footer">
+            <span class="sp-price">$32.00</span>
+            <a href="#" class="sp-buy water-buy" target="_blank" rel="noopener"><span class="en">Buy Now</span><span class="zh">立即购买</span></a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Fire 火 -->
+      <article class="shop-product-card" data-element="fire">
+        <div class="sp-img" style="background:linear-gradient(135deg,#7A1C1C,#C04040)">🔴</div>
+        <div class="sp-body">
+          <span class="tag tag-fire" style="margin-bottom:.5rem;display:inline-block"><span class="en">Fire Element</span><span class="zh">火元素</span></span>
+          <h3><span class="en">Cinnabar Red Crystal Pendant</span><span class="zh">朱砂红晶吊坠</span></h3>
+          <p><span class="en">Ancient Chinese cinnabar pendant. Activates Fire energy for recognition luck, social connections and confidence.</span><span class="zh">中国传统朱砂吊坠，激活火元素，增强贵人缘、社交运与自信心。</span></p>
+          <div class="sp-footer">
+            <span class="sp-price">$35.00</span>
+            <a href="#" class="sp-buy fire-buy" target="_blank" rel="noopener"><span class="en">Buy Now</span><span class="zh">立即购买</span></a>
+          </div>
+        </div>
+      </article>
+
+      <article class="shop-product-card" data-element="fire">
+        <div class="sp-img" style="background:linear-gradient(135deg,#7A3010,#D4660A)">🌅</div>
+        <div class="sp-body">
+          <span class="tag tag-fire" style="margin-bottom:.5rem;display:inline-block"><span class="en">Fire Element</span><span class="zh">火元素</span></span>
+          <h3><span class="en">Carnelian Energy Bracelet</span><span class="zh">红玛瑙能量手链</span></h3>
+          <p><span class="en">Warm orange carnelian activates Fire energy, ignites motivation, creative expression and personal power.</span><span class="zh">暖橙红玛瑙激活火元素，点燃行动力、创造表达与个人力量。</span></p>
+          <div class="sp-footer">
+            <span class="sp-price">$26.00</span>
+            <a href="#" class="sp-buy fire-buy" target="_blank" rel="noopener"><span class="en">Buy Now</span><span class="zh">立即购买</span></a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Wood 木 -->
+      <article class="shop-product-card" data-element="wood">
+        <div class="sp-img" style="background:linear-gradient(135deg,#2D5A3D,#4A7C6F)">🌿</div>
+        <div class="sp-body">
+          <span class="tag tag-wood" style="margin-bottom:.5rem;display:inline-block"><span class="en">Wood Element</span><span class="zh">木元素</span></span>
+          <h3><span class="en">Green Jade Guanyin Pendant</span><span class="zh">绿玉观音吊坠</span></h3>
+          <p><span class="en">Hand-carved green jade pendant of Guanyin. Strengthens Wood energy, promotes growth, compassion and healing.</span><span class="zh">手工雕刻绿玉观音，强化木元素，促进成长、慈悲心与身心康复。</span></p>
+          <div class="sp-footer">
+            <span class="sp-price">$42.00</span>
+            <a href="#" class="sp-buy wood-buy" target="_blank" rel="noopener"><span class="en">Buy Now</span><span class="zh">立即购买</span></a>
+          </div>
+        </div>
+      </article>
+
+      <article class="shop-product-card" data-element="wood">
+        <div class="sp-img" style="background:linear-gradient(135deg,#2A4A2A,#3D6B3D)">🍀</div>
+        <div class="sp-body">
+          <span class="tag tag-wood" style="margin-bottom:.5rem;display:inline-block"><span class="en">Wood Element</span><span class="zh">木元素</span></span>
+          <h3><span class="en">Green Aventurine Prosperity Bracelet</span><span class="zh">绿东陵石招财手链</span></h3>
+          <p><span class="en">Green aventurine, the stone of opportunity. Strengthens Wood energy, attracts growth luck and new beginnings.</span><span class="zh">机遇之石绿东陵，强化木元素，招引成长好运与崭新开始。</span></p>
+          <div class="sp-footer">
+            <span class="sp-price">$24.00</span>
+            <a href="#" class="sp-buy wood-buy" target="_blank" rel="noopener"><span class="en">Buy Now</span><span class="zh">立即购买</span></a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Earth 土 -->
+      <article class="shop-product-card" data-element="earth">
+        <div class="sp-img" style="background:linear-gradient(135deg,#5A4A1A,#C9A84C)">🌕</div>
+        <div class="sp-body">
+          <span class="tag tag-earth" style="margin-bottom:.5rem;display:inline-block"><span class="en">Earth Element</span><span class="zh">土元素</span></span>
+          <h3><span class="en">Yellow Tiger Eye Mala Beads</span><span class="zh">黄虎眼玛拉手串</span></h3>
+          <p><span class="en">108-bead tiger eye mala. Grounds Earth energy, attracts abundance, confidence and lasting stability.</span><span class="zh">108颗虎眼石玛拉，稳固土元素，招财纳福、增强自信与长久稳定。</span></p>
+          <div class="sp-footer">
+            <span class="sp-price">$38.00</span>
+            <a href="#" class="sp-buy earth-buy" target="_blank" rel="noopener"><span class="en">Buy Now</span><span class="zh">立即购买</span></a>
+          </div>
+        </div>
+      </article>
+
+      <article class="shop-product-card" data-element="earth">
+        <div class="sp-img" style="background:linear-gradient(135deg,#6B4A00,#F0C040)">☀️</div>
+        <div class="sp-body">
+          <span class="tag tag-earth" style="margin-bottom:.5rem;display:inline-block"><span class="en">Earth Element</span><span class="zh">土元素</span></span>
+          <h3><span class="en">Citrine Abundance Crystal</span><span class="zh">黄水晶丰盛原石</span></h3>
+          <p><span class="en">The merchant's stone. Citrine activates Earth energy for abundance, positivity and financial flow.</span><span class="zh">商人之石黄水晶，激活土元素，吸引丰盛、正能量与财富流动。</span></p>
+          <div class="sp-footer">
+            <span class="sp-price">$29.00</span>
+            <a href="#" class="sp-buy earth-buy" target="_blank" rel="noopener"><span class="en">Buy Now</span><span class="zh">立即购买</span></a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Metal 金 -->
+      <article class="shop-product-card" data-element="metal">
+        <div class="sp-img" style="background:linear-gradient(135deg,#3D4A5C,#6B7A8D)">⚔️</div>
+        <div class="sp-body">
+          <span class="tag tag-metal" style="margin-bottom:.5rem;display:inline-block"><span class="en">Metal Element</span><span class="zh">金元素</span></span>
+          <h3><span class="en">White Jade Pixiu Bracelet</span><span class="zh">白玉貔貅手链</span></h3>
+          <p><span class="en">Pixiu attracts wealth and repels bad energy. White jade amplifies Metal element strength for clarity and fortune.</span><span class="zh">貔貅招财辟邪，白玉放大金元素的清晰度与财运力量。</span></p>
+          <div class="sp-footer">
+            <span class="sp-price">$45.00</span>
+            <a href="#" class="sp-buy metal-buy" target="_blank" rel="noopener"><span class="en">Buy Now</span><span class="zh">立即购买</span></a>
+          </div>
+        </div>
+      </article>
+
+      <article class="shop-product-card" data-element="metal">
+        <div class="sp-img" style="background:linear-gradient(135deg,#4A4A5A,#C8C8D8)">💠</div>
+        <div class="sp-body">
+          <span class="tag tag-metal" style="margin-bottom:.5rem;display:inline-block"><span class="en">Metal Element</span><span class="zh">金元素</span></span>
+          <h3><span class="en">Clear Quartz Crystal Point</span><span class="zh">白水晶晶柱</span></h3>
+          <p><span class="en">The master amplifier. Clear quartz strengthens Metal clarity, enhances focus and amplifies all elemental energies.</span><span class="zh">万能放大器白水晶，增强金元素的清晰度、专注力，并放大所有五行能量。</span></p>
+          <div class="sp-footer">
+            <span class="sp-price">$22.00</span>
+            <a href="#" class="sp-buy metal-buy" target="_blank" rel="noopener"><span class="en">Buy Now</span><span class="zh">立即购买</span></a>
+          </div>
+        </div>
+      </article>
+
+    </div><!-- /products-grid -->
+
+    <!-- 广告 / Ad -->
+    <div class="ad-wrap" style="margin:3rem 0"><!-- ADSENSE UNIT --></div>
+
+    <!-- 计算器引流 / Calculator CTA -->
+    <div class="calc-banner">
+      <div>
+        <h2><span class="en">Not Sure What You Need?</span><span class="zh">不确定自己需要什么？</span></h2>
+        <p><span class="en">Get your free BaZi reading first — our calculator identifies your missing elements and recommends the right products.</span><span class="zh">先获取免费八字测算——我们的计算器精确找出你的缺失五行，并推荐对应商品。</span></p>
+      </div>
+      <a href="/calculator/" class="btn btn-gold btn-lg">
+        <span class="en">✦ Free BaZi Reading</span><span class="zh">✦ 免费八字测算</span>
+      </a>
+    </div>
+
+  </div>
+</main>
+
+<div id="footer-placeholder"></div>
+<script src="/js/components.js"></script>
+<script>
+initComponents('shop');
+
+// 动态更新店铺链接
+document.getElementById('store-link').href = STORE_URL + '?utm_source=bazioracle&utm_medium=shop&utm_campaign=store_banner';
+document.querySelectorAll('.sp-buy').forEach(btn => {
+  const el = btn.closest('[data-element]').dataset.element;
+  btn.href = STORE_URL + '?utm_source=bazioracle&utm_medium=shop&utm_campaign=element_' + el;
+});
+
+// 五行筛选
+function filterEl(el, btn) {
+  document.querySelectorAll('.ef').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.shop-product-card').forEach(card => {
+    card.style.display = (el === 'all' || card.dataset.element === el) ? 'block' : 'none';
+  });
+}
+
+// URL 参数筛选（从计算器跳转过来时自动筛选）
+const urlEl = new URLSearchParams(window.location.search).get('element');
+if (urlEl) {
+  const btn = document.querySelector(`.ef[onclick*="${urlEl}"]`);
+  if (btn) filterEl(urlEl, btn);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+  <!-- ★ 语言检测脚本（必须在CSS前运行，防止双语同时显示）-->
+  <style id="ls">.zh{display:none!important}</style>
+  <script>(function(){var z=new URLSearchParams(location.search).get('lang')==='zh';document.documentElement.lang=z?'zh-CN':'en';if(z){document.getElementById('ls').textContent='.en{display:none!important}';}})();</script>
+  <!-- ★ End language detection -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BaZi Oracle — Free Chinese Astrology & Four Pillars Calculator</title>
+<meta name="description" content="Discover your BaZi Four Pillars chart for free. Ancient Chinese destiny analysis revealing your elemental blueprint, Day Master, and how to balance your Five Elements.">
+<link rel="canonical" href="https://getbazioracle.com/">
+<meta property="og:title" content="BaZi Oracle — Free Four Pillars Reading">
+<meta property="og:description" content="Discover your elemental blueprint through BaZi — the 3,000-year-old Chinese system for understanding destiny.">
+<meta property="og:url" content="https://getbazioracle.com/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"BaZi Oracle","url":"https://getbazioracle.com"}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+<!-- ADSENSE: <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
+</head>
+<body>
+<div id="nav-placeholder"></div>
+
+<!-- ── Hero ── -->
+<section class="hero">
+  <div class="hero-inner">
+    <div>
+      <p class="hero-label">
+        <span class="en">★ Ancient Chinese Wisdom for Modern Life</span>
+        <span class="zh">★ 千年古老智慧，照亮现代人生</span>
+      </p>
+      <h1 class="hero-title">
+        <span class="en">Your Destiny Is Written In <em>Four Pillars</em></span>
+        <span class="zh">你的命运，藏在<em>四柱八字</em>之中</span>
+      </h1>
+      <p class="hero-desc en">Discover your elemental blueprint through BaZi — the 3,000-year-old Chinese system that reveals your strengths, your path, and how to create harmony by balancing the Five Elements.</p>
+      <p class="hero-desc zh">通过八字探索你的五行命盘——这套传承3,000年的中国命理体系，揭示你的天赋优势、人生方向，以及如何通过平衡五行创造生命中的和谐。</p>
+      <div class="hero-actions">
+        <a href="/calculator/" class="btn btn-gold btn-lg">
+          <span class="en">✦ Reveal My BaZi Chart — Free</span>
+          <span class="zh">✦ 免费测算我的八字命盘</span>
+        </a>
+        <a href="/learn/" class="btn btn-outline btn-lg">
+          <span class="en">Learn the Basics →</span>
+          <span class="zh">学习八字基础 →</span>
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <strong>3,000+</strong>
+          <span class="en">Years of Wisdom</span>
+          <span class="zh">年命理智慧</span>
+        </div>
+        <div class="hero-stat">
+          <strong>5</strong>
+          <span class="en">Elemental Forces</span>
+          <span class="zh">大五行元素</span>
+        </div>
+        <div class="hero-stat">
+          <strong>60</strong>
+          <span class="en">Year Destiny Cycle</span>
+          <span class="zh">年大运周期</span>
+        </div>
+      </div>
+    </div>
+    <div class="compass-wrap" aria-hidden="true">
+      <svg class="compass-svg compass-glow" viewBox="0 0 360 360" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="180" cy="180" r="170" fill="none" stroke="#C9A84C" stroke-width="1" stroke-dasharray="4 8" opacity=".45"/>
+        <circle cx="180" cy="180" r="152" fill="none" stroke="rgba(201,168,76,.18)" stroke-width="1"/>
+        <g class="compass-inner">
+          <text x="180" y="24"  text-anchor="middle" fill="#C9A84C" font-size="18" font-family="serif">☰</text>
+          <text x="291" y="65"  text-anchor="middle" fill="#C9A84C" font-size="18" font-family="serif">☱</text>
+          <text x="336" y="186" text-anchor="middle" fill="#C9A84C" font-size="18" font-family="serif">☲</text>
+          <text x="291" y="302" text-anchor="middle" fill="#C9A84C" font-size="18" font-family="serif">☳</text>
+          <text x="180" y="348" text-anchor="middle" fill="#C9A84C" font-size="18" font-family="serif">☷</text>
+          <text x="68"  y="302" text-anchor="middle" fill="#C9A84C" font-size="18" font-family="serif">☶</text>
+          <text x="24"  y="186" text-anchor="middle" fill="#C9A84C" font-size="18" font-family="serif">☵</text>
+          <text x="68"  y="65"  text-anchor="middle" fill="#C9A84C" font-size="18" font-family="serif">☴</text>
+          <circle cx="180" cy="180" r="90" fill="none" stroke="rgba(201,168,76,.28)" stroke-width="1.5"/>
+          <circle cx="180" cy="180" r="68" fill="rgba(201,168,76,.04)"/>
+          <text x="180" y="196" text-anchor="middle" fill="rgba(201,168,76,.9)" font-size="54" font-family="serif">☯</text>
+        </g>
+        <circle cx="180" cy="10"  r="4" fill="#C9A84C"/>
+        <circle cx="350" cy="180" r="4" fill="#C9A84C"/>
+        <circle cx="180" cy="350" r="4" fill="#C9A84C"/>
+        <circle cx="10"  cy="180" r="4" fill="#C9A84C"/>
+      </svg>
+    </div>
+  </div>
+</section>--><!-- 商品区结束 -->
+
+<!-- Ad Unit -->
+<div class="container"><div class="ad-wrap"><!-- ADSENSE UNIT --></div></div>
+
+<!-- ── 什么是八字 / What is BaZi ── -->
+<section class="section">
+  <div class="container">
+    <p class="section-label">
+      <span class="en">★ About BaZi</span>
+      <span class="zh">★ 关于八字</span>
+    </p>
+    <h2 class="section-title">
+      <span class="en">The Ancient Science of Destiny</span>
+      <span class="zh">古老的命运科学</span>
+    </h2>
+    <p class="section-sub en">BaZi (八字), the Four Pillars of Destiny, analyses your birth date and time to reveal your unique elemental blueprint — and how to live in harmony with it.</p>
+    <p class="section-sub zh">八字，即四柱命理，通过分析你的出生日期和时辰，揭示你独特的五行命盘——以及如何与之和谐共处。</p>
+    <div class="grid-3 mt-3">
+      <article class="intro-card">
+        <div class="intro-icon">🔮</div>
+        <h3><span class="en">Know Your Nature</span><span class="zh">了解你的天性</span></h3>
+        <p class="en">Your Day Master element reveals your core personality — how you think, relate, and make decisions. This self-knowledge is the foundation of intentional living.</p>
+        <p class="zh">日主元素揭示你的核心性格——你如何思考、如何相处、如何做决定。这份自我认知，是有意识生活的基础。</p>
+      </article>
+      <article class="intro-card">
+        <div class="intro-icon">⚖️</div>
+        <h3><span class="en">Balance Your Elements</span><span class="zh">平衡你的五行</span></h3>
+        <p class="en">When elements are missing from your chart, life feels harder. Strengthening them through colour, objects, and environment creates natural flow.</p>
+        <p class="zh">当命盘中某些五行缺失，生活会感觉更费力。通过颜色、物品和环境来加强这些元素，可以创造自然的流动感。</p>
+      </article>
+      <article class="intro-card">
+        <div class="intro-icon">✨</div>
+        <h3><span class="en">Attract Prosperity</span><span class="zh">吸引繁荣</span></h3>
+        <p class="en">Align your choices — career, relationships, timing — with your elemental strengths. When you work with your chart, everything becomes easier.</p>
+        <p class="zh">将你的选择——职业、关系、时机——与五行优势对齐。当你顺应命盘行事，一切都会变得更加顺畅。</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ── 五行 / Five Elements ── -->
+<section class="elements-bg">
+  <div class="container">
+    <p class="section-label">
+      <span class="en">★ The Five Elements</span><span class="zh">★ 五行元素</span>
+    </p>
+    <h2 class="section-title light">
+      <span class="en">Wood · Fire · Earth · Metal · Water</span>
+      <span class="zh">木 · 火 · 土 · 金 · 水</span>
+    </h2>
+    <div class="grid-5 mt-3">
+      <article class="elem-card wood">
+        <div class="elem-sym">🌿</div>
+        <div class="elem-name"><span class="en">Wood</span><span class="zh">木</span></div>
+        <div class="elem-cn">木 (Mù)</div>
+        <div class="elem-traits"><span class="en">Growth · Creativity<br>Compassion · Spring<br>Green · East</span><span class="zh">成长 · 创造力<br>慈悲 · 春季<br>绿色 · 东方</span></div>
+      </article>
+      <article class="elem-card fire">
+        <div class="elem-sym">🔥</div>
+        <div class="elem-name"><span class="en">Fire</span><span class="zh">火</span></div>
+        <div class="elem-cn">火 (Huǒ)</div>
+        <div class="elem-traits"><span class="en">Passion · Charisma<br>Intuition · Summer<br>Red · South</span><span class="zh">热情 · 魅力<br>直觉 · 夏季<br>红色 · 南方</span></div>
+      </article>
+      <article class="elem-card earth">
+        <div class="elem-sym">⛰️</div>
+        <div class="elem-name"><span class="en">Earth</span><span class="zh">土</span></div>
+        <div class="elem-cn">土 (Tǔ)</div>
+        <div class="elem-traits"><span class="en">Stability · Nurture<br>Reliability · Centre<br>Yellow · All Seasons</span><span class="zh">稳定 · 滋养<br>可靠 · 四季<br>黄色 · 中央</span></div>
+      </article>
+      <article class="elem-card metal">
+        <div class="elem-sym">⚔️</div>
+        <div class="elem-name"><span class="en">Metal</span><span class="zh">金</span></div>
+        <div class="elem-cn">金 (Jīn)</div>
+        <div class="elem-traits"><span class="en">Precision · Clarity<br>Justice · Autumn<br>White · West</span><span class="zh">精准 · 清晰<br>正义 · 秋季<br>白色 · 西方</span></div>
+      </article>
+      <article class="elem-card water">
+        <div class="elem-sym">🌊</div>
+        <div class="elem-name"><span class="en">Water</span><span class="zh">水</span></div>
+        <div class="elem-cn">水 (Shuǐ)</div>
+        <div class="elem-traits"><span class="en">Wisdom · Adaptability<br>Flow · Winter<br>Black · North</span><span class="zh">智慧 · 适应力<br>流动 · 冬季<br>黑色 · 北方</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ── 计算器入口 / Calculator CTA ── -->
+<section class="section-sm">
+  <div class="container">
+    <div class="calc-banner">
+      <div>
+        <h2><span class="en">Discover Your Elemental Blueprint — Free</span><span class="zh">探索你的五行命盘——完全免费</span></h2>
+        <p class="en">Enter your birth date and time for an instant BaZi Four Pillars analysis.</p>
+        <p class="zh">输入你的出生日期和时辰，即刻获得八字四柱命盘分析。</p>
+      </div>
+      <a href="/calculator/" class="btn btn-gold btn-lg">
+        <span class="en">✦ Calculate My BaZi</span>
+        <span class="zh">✦ 测算我的八字</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ── 精选文章 / Featured Articles ── -->
+<section class="section">
+  <div class="container">
+    <p class="section-label"><span class="en">★ Learn</span><span class="zh">★ 学习</span></p>
+    <h2 class="section-title"><span class="en">Start Your BaZi Journey</span><span class="zh">开启你的八字之旅</span></h2>
+    <div class="grid-3">
+      <article class="article-card">
+        <div class="a-thumb water">🌊</div>
+        <div class="a-body">
+          <div class="a-meta"><span class="tag tag-water"><span class="en">Introduction</span><span class="zh">入门</span></span><span>5 min</span></div>
+          <h3><span class="en">What Is Your Day Master? The Core of Your BaZi</span><span class="zh">什么是日主？你的八字核心</span></h3>
+          <p class="en">The Day Pillar stem is the most important element in your chart — it is your core elemental identity.</p>
+          <p class="zh">日柱天干是命盘中最重要的元素——它是你的核心五行身份。</p>
+        </div>
+        <div class="a-footer"><span><span class="en">Beginner</span><span class="zh">入门</span></span><a href="/learn/what-is-bazi-four-pillars/"><span class="en">Read →</span><span class="zh">阅读 →</span></a></div>
+      </article>
+      <article class="article-card">
+        <div class="a-thumb fire">🔥</div>
+        <div class="a-body">
+          <div class="a-meta"><span class="tag tag-fire"><span class="en">Elements</span><span class="zh">五行</span></span><span>8 min</span></div>
+          <h3><span class="en">The Five Elements: How Wood, Fire, Earth, Metal & Water Shape Your Life</span><span class="zh">五行详解：木火土金水如何塑造你的人生</span></h3>
+          <p class="en">The Five Elements cycle is the master key to reading any BaZi chart.</p>
+          <p class="zh">五行生克制化，是解读任何八字命盘的核心密钥。</p>
+        </div>
+        <div class="a-footer"><span><span class="en">Beginner</span><span class="zh">入门</span></span><a href="/learn/five-elements-complete-guide/"><span class="en">Read →</span><span class="zh">阅读 →</span></a></div>
+      </article>
+      <article class="article-card">
+        <div class="a-thumb wood">🌿</div>
+        <div class="a-body">
+          <div class="a-meta"><span class="tag tag-wood"><span class="en">Practical</span><span class="zh">实用</span></span><span>6 min</span></div>
+          <h3><span class="en">Missing Elements: Why Imbalance Causes Struggle</span><span class="zh">缺失五行：为何失衡导致人生困境</span></h3>
+          <p class="en">Discover what happens when elements are absent and simple remedies that work.</p>
+          <p class="zh">探索五行缺失的影响，以及简单有效的补救方法。</p>
+        </div>
+        <div class="a-footer"><span><span class="en">Intermediate</span><span class="zh">进阶</span></span><a href="/learn/missing-elements-how-to-remedy/"><span class="en">Read →</span><span class="zh">阅读 →</span></a></div>
+      </article>
+    </div>
+    <div class="text-center mt-2">
+      <a href="/learn/" class="btn btn-dark">
+        <span class="en">View All Articles →</span><span class="zh">查看全部文章 →</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ── 商品区（暂时隐藏，开通店铺后取消注释）
+<section class="shop-bg">
+  <div class="container">
+    <p class="section-label"><span class="en">★ Balance Your Elements</span><span class="zh">★ 平衡你的五行</span></p>
+    <h2 class="section-title"><span class="en">Strengthen What Your Chart Is Missing</span><span class="zh">加强命盘中缺失的五行</span></h2>
+    <p class="section-sub en">Each element corresponds to specific colours and objects. Surrounding yourself with your missing elements restores balance.</p>
+    <p class="section-sub zh">每种五行对应特定的颜色和物品。用缺失的五行元素装点你的生活，可以有效恢复命盘平衡。</p>
+    <div class="grid-4 mt-3">
+      <article class="product-card">
+        <div class="p-img" style="background:linear-gradient(135deg,#1A3050,#2C5282)">💎</div>
+        <div class="p-info">
+          <span class="tag tag-water" style="margin-bottom:.5rem;display:inline-block"><span class="en">Water Element</span><span class="zh">水元素</span></span>
+          <h4><span class="en">Black Obsidian Bracelet</span><span class="zh">黑曜石手链</span></h4>
+          <p class="en">Activates Water energy. Boosts intuition and clarity.</p>
+          <p class="zh">激活水元素，提升直觉力与心智清晰度。</p>
+          <span class="p-price">$28.00</span>
+          <a href="/shop/" class="p-btn"><span class="en">View in Shop →</span><span class="zh">查看商品 →</span></a>
+        </div>
+      </article>
+      <article class="product-card">
+        <div class="p-img" style="background:linear-gradient(135deg,#7A1C1C,#C04040)">🔴</div>
+        <div class="p-info">
+          <span class="tag tag-fire" style="margin-bottom:.5rem;display:inline-block"><span class="en">Fire Element</span><span class="zh">火元素</span></span>
+          <h4><span class="en">Cinnabar Red Crystal Pendant</span><span class="zh">朱砂红晶吊坠</span></h4>
+          <p class="en">Enhances Fire energy. Boosts recognition and confidence.</p>
+          <p class="zh">增强火元素，提升贵人缘与自信心。</p>
+          <span class="p-price">$35.00</span>
+          <a href="/shop/" class="p-btn"><span class="en">View in Shop →</span><span class="zh">查看商品 →</span></a>
+        </div>
+      </article>
+      <article class="product-card">
+        <div class="p-img" style="background:linear-gradient(135deg,#2D5A3D,#4A7C6F)">🌿</div>
+        <div class="p-info">
+          <span class="tag tag-wood" style="margin-bottom:.5rem;display:inline-block"><span class="en">Wood Element</span><span class="zh">木元素</span></span>
+          <h4><span class="en">Green Jade Guanyin Pendant</span><span class="zh">绿玉观音吊坠</span></h4>
+          <p class="en">Strengthens Wood element. Promotes growth and healing.</p>
+          <p class="zh">强化木元素，促进成长与身心康愈。</p>
+          <span class="p-price">$42.00</span>
+          <a href="/shop/" class="p-btn"><span class="en">View in Shop →</span><span class="zh">查看商品 →</span></a>
+        </div>
+      </article>
+      <article class="product-card">
+        <div class="p-img" style="background:linear-gradient(135deg,#5A4A1A,#C9A84C)">🌕</div>
+        <div class="p-info">
+          <span class="tag tag-earth" style="margin-bottom:.5rem;display:inline-block"><span class="en">Earth Element</span><span class="zh">土元素</span></span>
+          <h4><span class="en">Yellow Tiger Eye Bracelet</span><span class="zh">黄虎眼手链</span></h4>
+          <p class="en">Grounds Earth energy. Brings abundance and stability.</p>
+          <p class="zh">稳固土元素，招财纳福、增强稳定感。</p>
+          <span class="p-price">$38.00</span>
+          <a href="/shop/" class="p-btn"><span class="en">View in Shop →</span><span class="zh">查看商品 →</span></a>
+        </div>
+      </article>
+    </div>
+    <div class="text-center mt-3">
+      <a href="/shop/" class="btn btn-gold btn-lg">
+        <span class="en">✦ Explore Full Element Shop</span><span class="zh">✦ 浏览完整五行商品店</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Ad Unit -->
+<div class="container"><div class="ad-wrap"><!-- ADSENSE UNIT --></div></div>
+
+<!-- ── Newsletter ── -->
+<section class="newsletter-bg">
+  <div class="container">
+    <p class="section-label" style="color:var(--gold-l)"><span class="en">★ Free Weekly Wisdom</span><span class="zh">★ 免费每周智慧</span></p>
+    <h2><span class="en">BaZi Insights to Your Inbox</span><span class="zh">八字智慧，直送邮箱</span></h2>
+    <p><span class="en">Monthly element forecasts, articles, and exclusive offers on element-balancing products.</span><span class="zh">每月五行运势预测、深度文章，以及五行平衡商品专属优惠。</span></p>
+    <form class="nl-form" id="nl-form">
+      <input type="email" class="nl-input" placeholder="your@email.com" required>
+      <button type="submit" class="btn btn-gold"><span class="en">Subscribe →</span><span class="zh">订阅 →</span></button>
+    </form>
+    <p class="nl-note"><span class="en">No spam. Unsubscribe anytime.</span><span class="zh">无垃圾邮件，随时可取消订阅。</span></p>
+  </div>
+</section>
+
+<div id="footer-placeholder"></div>
+<script src="/js/components.js"></script>
+<script>initComponents('home');</script>
+</body>
+</html>

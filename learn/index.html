@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+  <!-- ★ 语言检测脚本（必须在CSS前运行，防止双语同时显示）-->
+  <style id="ls">.zh{display:none!important}</style>
+  <script>(function(){var z=new URLSearchParams(location.search).get('lang')==='zh';document.documentElement.lang=z?'zh-CN':'en';if(z){document.getElementById('ls').textContent='.en{display:none!important}';}})();</script>
+  <!-- ★ End language detection -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learn BaZi — Four Pillars Guides & Articles | BaZi Oracle</title>
+<meta name="description" content="Complete beginner to advanced BaZi guides. Learn about the Four Pillars of Destiny, Five Elements, Day Masters, and how to balance your elemental chart.">
+<link rel="canonical" href="https://getbazioracle.com/learn/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+
+<header class="page-header">
+  <div class="page-header-inner">
+    <p class="section-label"><span class="en">★ Knowledge Base</span><span class="zh">★ 知识库</span></p>
+    <h1><span class="en">Learn BaZi from Scratch</span><span class="zh">从零开始学八字</span></h1>
+    <p>
+      <span class="en">From complete beginner to confident chart reader — guides covering every aspect of Four Pillars astrology.</span>
+      <span class="zh">从完全新手到自信解读命盘——涵盖四柱命理每个方面的系统指南。</span>
+    </p>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <div class="ad-wrap mt-2"><!-- ADSENSE UNIT --></div>
+
+    <!-- 分类标签 / Category Tabs -->
+    <div class="cat-tabs">
+      <button class="cat-tab active" onclick="filterCat('all',this)">
+        <span class="en">All Articles</span><span class="zh">全部文章</span>
+      </button>
+      <button class="cat-tab" onclick="filterCat('intro',this)">
+        <span class="en">Introduction</span><span class="zh">入门基础</span>
+      </button>
+      <button class="cat-tab" onclick="filterCat('elements',this)">
+        <span class="en">🔥 Five Elements</span><span class="zh">🔥 五行详解</span>
+      </button>
+      <button class="cat-tab" onclick="filterCat('practical',this)">
+        <span class="en">🌿 Practical</span><span class="zh">🌿 实用指南</span>
+      </button>
+    </div>
+
+    <!-- 文章列表 / Articles Grid -->
+    <div class="grid-3" id="articles-grid" style="padding-bottom:4rem">
+
+      <article class="article-card" data-cat="intro">
+        <div class="a-thumb water">🌊</div>
+        <div class="a-body">
+          <div class="a-meta">
+            <span class="tag tag-water"><span class="en">Introduction</span><span class="zh">入门</span></span>
+            <span>5 min</span>
+          </div>
+          <h3>
+            <span class="en">What Is Your Day Master? The Core of Your BaZi</span>
+            <span class="zh">什么是日主？你的八字核心</span>
+          </h3>
+          <p>
+            <span class="en">The Day Pillar stem is the most important element in your chart — it is your core elemental identity.</span>
+            <span class="zh">日柱天干是命盘中最重要的元素——它是你的核心五行身份。</span>
+          </p>
+        </div>
+        <div class="a-footer">
+          <span><span class="en">Beginner</span><span class="zh">入门级</span></span>
+          <a href="/learn/what-is-bazi-four-pillars/"><span class="en">Read →</span><span class="zh">阅读 →</span></a>
+        </div>
+      </article>
+
+      <article class="article-card" data-cat="elements">
+        <div class="a-thumb fire">🔥</div>
+        <div class="a-body">
+          <div class="a-meta">
+            <span class="tag tag-fire"><span class="en">Five Elements</span><span class="zh">五行</span></span>
+            <span>8 min</span>
+          </div>
+          <h3>
+            <span class="en">The Five Elements: How Wood, Fire, Earth, Metal & Water Shape Your Destiny</span>
+            <span class="zh">五行详解：木火土金水如何塑造你的命运</span>
+          </h3>
+          <p>
+            <span class="en">The generating and controlling cycles between the Five Elements are the master key to BaZi.</span>
+            <span class="zh">五行生克制化，是解读八字命盘的核心密钥。</span>
+          </p>
+        </div>
+        <div class="a-footer">
+          <span><span class="en">Beginner</span><span class="zh">入门级</span></span>
+          <a href="/learn/five-elements-complete-guide/"><span class="en">Read →</span><span class="zh">阅读 →</span></a>
+        </div>
+      </article>
+
+      <article class="article-card" data-cat="practical">
+        <div class="a-thumb wood">🌿</div>
+        <div class="a-body">
+          <div class="a-meta">
+            <span class="tag tag-wood"><span class="en">Practical</span><span class="zh">实用</span></span>
+            <span>6 min</span>
+          </div>
+          <h3>
+            <span class="en">Missing Elements: Why Imbalance Causes Struggle and How to Fix It</span>
+            <span class="zh">缺失五行：为何失衡导致困境，以及如何改善</span>
+          </h3>
+          <p>
+            <span class="en">Discover what happens when elements are absent, and simple remedies that work.</span>
+            <span class="zh">了解五行缺失的影响，以及简单有效的补救方法。</span>
+          </p>
+        </div>
+        <div class="a-footer">
+          <span><span class="en">Intermediate</span><span class="zh">进阶级</span></span>
+          <a href="/learn/missing-elements-how-to-remedy/"><span class="en">Read →</span><span class="zh">阅读 →</span></a>
+        </div>
+      </article>
+
+      <article class="article-card" data-cat="intro">
+        <div class="a-thumb earth">⛰️</div>
+        <div class="a-body">
+          <div class="a-meta">
+            <span class="tag tag-earth"><span class="en">Introduction</span><span class="zh">入门</span></span>
+            <span>10 min</span>
+          </div>
+          <h3>
+            <span class="en">The Ten Day Masters: Your Elemental Personality Type</span>
+            <span class="zh">十天干日主：你的五行性格类型</span>
+          </h3>
+          <p>
+            <span class="en">Each Heavenly Stem creates a unique Day Master personality. Discover your elemental type.</span>
+            <span class="zh">每个天干造就独特的日主性格。探索你的五行类型。</span>
+          </p>
+        </div>
+        <div class="a-footer">
+          <span><span class="en">Intermediate</span><span class="zh">进阶级</span></span>
+          <a href="/learn/" style="color:var(--gold)"><span class="en">Coming Soon</span><span class="zh">即将上线</span></a>
+        </div>
+      </article>
+
+      <article class="article-card" data-cat="practical">
+        <div class="a-thumb metal">⚔️</div>
+        <div class="a-body">
+          <div class="a-meta">
+            <span class="tag tag-metal"><span class="en">Practical</span><span class="zh">实用</span></span>
+            <span>7 min</span>
+          </div>
+          <h3>
+            <span class="en">Using Crystals to Balance Your Missing Elements</span>
+            <span class="zh">用水晶平衡你的缺失五行</span>
+          </h3>
+          <p>
+            <span class="en">A practical guide to selecting element-balancing crystals for your home and workspace.</span>
+            <span class="zh">为家居和工作空间选择五行平衡水晶的实用指南。</span>
+          </p>
+        </div>
+        <div class="a-footer">
+          <span><span class="en">Practical</span><span class="zh">实用级</span></span>
+          <a href="/learn/" style="color:var(--gold)"><span class="en">Coming Soon</span><span class="zh">即将上线</span></a>
+        </div>
+      </article>
+
+      <article class="article-card" data-cat="elements">
+        <div class="a-thumb water">💎</div>
+        <div class="a-body">
+          <div class="a-meta">
+            <span class="tag tag-water"><span class="en">Advanced</span><span class="zh">进阶</span></span>
+            <span>9 min</span>
+          </div>
+          <h3>
+            <span class="en">BaZi Compatibility: How the Four Pillars Predict Relationship Harmony</span>
+            <span class="zh">八字合婚：四柱如何预测感情和谐度</span>
+          </h3>
+          <p>
+            <span class="en">Learn how elements interact between two charts to reveal natural compatibility.</span>
+            <span class="zh">了解两个命盘之间的五行互动如何揭示天然的契合度。</span>
+          </p>
+        </div>
+        <div class="a-footer">
+          <span><span class="en">Advanced</span><span class="zh">高级</span></span>
+          <a href="/learn/" style="color:var(--gold)"><span class="en">Coming Soon</span><span class="zh">即将上线</span></a>
+        </div>
+      </article>
+    </div>
+
+    <div class="ad-wrap" style="margin-bottom:3rem"><!-- ADSENSE UNIT --></div>
+
+    <div class="calc-banner" style="margin-bottom:4rem">
+      <div>
+        <h2><span class="en">Ready to Read Your Own Chart?</span><span class="zh">准备好解读自己的命盘了吗？</span></h2>
+        <p><span class="en">Use our free calculator to generate your Four Pillars chart instantly.</span><span class="zh">使用我们的免费计算器，立即生成你的四柱八字命盘。</span></p>
+      </div>
+      <a href="/calculator/" class="btn btn-gold btn-lg">
+        <span class="en">✦ Free BaZi Calculator</span><span class="zh">✦ 免费八字计算器</span>
+      </a>
+    </div>
+  </div>
+</main>
+
+<div id="footer-placeholder"></div>
+<script src="/js/components.js"></script>
+<script>
+initComponents('learn');
+function filterCat(cat,btn){
+  document.querySelectorAll('.cat-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#articles-grid .article-card').forEach(card=>{
+    card.style.display=(cat==='all'||card.dataset.cat===cat)?'block':'none';
+  });
+}
+</script>
+</body>
+</html>
