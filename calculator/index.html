@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style id="ls">.zh{display:none!important}</style>
+<script>(function(){var z=new URLSearchParams(location.search).get('lang')==='zh';document.documentElement.lang=z?'zh-CN':'en';if(z){document.getElementById('ls').textContent='.en{display:none!important}';}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free BaZi Calculator — Four Pillars Reading | BaZi Oracle</title>
+<meta name="description" content="Get your free BaZi Four Pillars chart instantly. Unlock the full AI-powered analysis to discover your Day Master, elemental balance and personalised destiny reading.">
+<link rel="canonical" href="https://getbazioracle.com/calculator/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div id="nav-placeholder"></div>
+
+<header class="page-header">
+  <div class="page-header-inner">
+    <p class="section-label"><span class="en">★ BaZi Calculator</span><span class="zh">★ 八字计算器</span></p>
+    <h1><span class="en">Your Four Pillars Chart</span><span class="zh">你的四柱八字命盘</span></h1>
+    <p>
+      <span class="en">Get your free BaZi chart instantly. Unlock the full AI analysis to discover your complete elemental destiny.</span>
+      <span class="zh">免费即时获取四柱命盘。解锁完整 AI 解读，探索你的五行命运。</span>
+    </p>
+  </div>
+</header>
+
+<main class="calc-wrap">
+
+  <!-- 支付回调状态区 -->
+  <div id="payment-status" style="display:none"></div>
+
+  <!-- ════ 输入表单 ════ -->
+  <div class="calc-card" id="form-card">
+    <div class="cc-header">
+      <h2><span class="en">Enter Your Birth Details</span><span class="zh">填写出生信息</span></h2>
+      <p>
+        <span class="en">Your data is processed locally in your browser — never stored or shared.</span>
+        <span class="zh">您的信息仅在浏览器本地处理，不会被存储或分享。</span>
+      </p>
+    </div>
+    <div class="cc-body">
+      <div class="form-row">
+        <div class="fg">
+          <label for="inp-year"><span class="en">Birth Year</span><span class="zh">出生年份</span></label>
+          <select id="inp-year" class="fc"></select>
+        </div>
+        <div class="fg">
+          <label for="inp-month"><span class="en">Birth Month</span><span class="zh">出生月份</span></label>
+          <select id="inp-month" class="fc">
+            <option value="1">January / 一月</option><option value="2">February / 二月</option>
+            <option value="3">March / 三月</option><option value="4">April / 四月</option>
+            <option value="5">May / 五月</option><option value="6">June / 六月</option>
+            <option value="7">July / 七月</option><option value="8">August / 八月</option>
+            <option value="9">September / 九月</option><option value="10">October / 十月</option>
+            <option value="11">November / 十一月</option><option value="12">December / 十二月</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label for="inp-day"><span class="en">Birth Day</span><span class="zh">出生日期</span></label>
+          <select id="inp-day" class="fc"></select>
+        </div>
+        <div class="fg">
+          <label for="inp-hour"><span class="en">Birth Hour</span><span class="zh">出生时辰</span></label>
+          <select id="inp-hour" class="fc">
+            <option value="23">子时 23:00–01:00</option><option value="1">丑时 01:00–03:00</option>
+            <option value="3">寅时 03:00–05:00</option><option value="5">卯时 05:00–07:00</option>
+            <option value="7">辰时 07:00–09:00</option><option value="9">巳时 09:00–11:00</option>
+            <option value="11">午时 11:00–13:00</option><option value="13">未时 13:00–15:00</option>
+            <option value="15">申时 15:00–17:00</option><option value="17">酉时 17:00–19:00</option>
+            <option value="19">戌时 19:00–21:00</option><option value="21">亥时 21:00–23:00</option>
+          </select>
+        </div>
+      </div>
+      <div class="gender-row">
+        <button class="g-btn on" id="g-male" onclick="setGender('male')" aria-pressed="true">
+          <span class="en">♂ Male</span><span class="zh">♂ 男</span>
+        </button>
+        <button class="g-btn" id="g-female" onclick="setGender('female')" aria-pressed="false">
+          <span class="en">♀ Female</span><span class="zh">♀ 女</span>
+        </button>
+      </div>
+      <button class="calc-submit" onclick="doCalculate()">
+        <span class="en">✦ Calculate My Free BaZi Chart</span>
+        <span class="zh">✦ 免费生成我的八字命盘</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ════ 结果区域 ════ -->
+  <div class="results-section" id="results" aria-live="polite">
+
+    <!-- ── 免费内容：四柱表格 ── -->
+    <div class="calc-card">
+      <div class="pillars-header">
+        <h3><span class="en">⊞ Your Four Pillars — 四柱八字</span><span class="zh">⊞ 你的四柱八字</span></h3>
+        <span class="free-badge">✓ FREE</span>
+      </div>
+      <div class="pillars-grid" id="pillars-content"></div>
+      <div style="padding:.75rem 1.5rem;background:rgba(61,107,71,.05);border-top:1px solid #F0F0F0">
+        <p style="font-size:.82rem;color:var(--gray)" id="free-summary"></p>
+      </div>
+    </div>
+
+    <!-- ── 解锁成功横幅 ── -->
+    <div class="unlock-success-banner" id="unlock-success" style="display:none"></div>
+
+    <!-- ── 锁定内容区域 ── -->
+    <div id="locked-wrapper">
+
+      <!-- 五行平衡图（锁定预览） -->
+      <div class="locked-section">
+        <div class="locked-blur">
+          <div class="calc-card">
+            <div class="cc-header">
+              <h2>⊞ <span class="en">Elemental Balance Analysis</span><span class="zh">五行平衡分析</span></h2>
+            </div>
+            <div class="cc-body">
+              <!-- 模糊预览条形图 -->
+              <div style="padding:.5rem 0">
+                <div style="display:flex;align-items:center;gap:1rem;margin-bottom:.9rem">
+                  <span style="width:60px;font-size:.85rem;color:#3D6B47">🌿 Wood</span>
+                  <div style="flex:1;height:10px;background:#3D6B47;border-radius:20px;width:35%"></div>
+                  <span style="width:36px;font-size:.82rem;color:#999">35%</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:1rem;margin-bottom:.9rem">
+                  <span style="width:60px;font-size:.85rem;color:#A83232">🔥 Fire</span>
+                  <div style="flex:1;height:10px;background:#A83232;border-radius:20px;width:0%"></div>
+                  <span style="width:36px;font-size:.82rem;color:#A83232;font-weight:600">0%</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:1rem;margin-bottom:.9rem">
+                  <span style="width:60px;font-size:.85rem;color:#B8892B">⛰️ Earth</span>
+                  <div style="flex:1;height:10px;background:#B8892B;border-radius:20px;width:40%"></div>
+                  <span style="width:36px;font-size:.82rem;color:#999">40%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- 遮罩 -->
+        <div class="lock-overlay">
+          <div class="lock-box">
+            <span class="lock-icon">🔮</span>
+            <h3><span class="en">Unlock Your Full Reading</span><span class="zh">解锁完整命盘解读</span></h3>
+            <p class="lock-desc">
+              <span class="en">Get your complete elemental analysis, Day Master personality profile, and AI-powered destiny reading.</span>
+              <span class="zh">获取完整五行分析、日主性格解读，以及 AI 驱动的深度命盘报告。</span>
+            </p>
+            <div class="lock-price">$3.99 <span>$9.99</span></div>
+            <ul class="lock-features">
+              <li><span class="en">Five Element balance chart & analysis</span><span class="zh">五行平衡可视化图表与分析</span></li>
+              <li><span class="en">Day Master personality deep dive</span><span class="zh">日主性格深度解读</span></li>
+              <li><span class="en">Missing element identification & meaning</span><span class="zh">缺失五行识别与人生影响解析</span></li>
+              <li><span class="en">AI full reading: career, wealth, love, health</span><span class="zh">AI 全面解读：事业/财运/感情/健康</span></li>
+            </ul>
+            <button class="btn-unlock" id="unlock-btn" onclick="handleUnlockClick()">
+              <span class="en">✦ Unlock Full Reading — $3.99</span>
+              <span class="zh">✦ 解锁完整解读 — ¥29.9</span>
+            </button>
+            <p class="lock-trust">
+              <span class="en">🔒 Secure payment via Lemon Squeezy · One-time · No subscription</span>
+              <span class="zh">🔒 通过 Lemon Squeezy 安全支付 · 一次性 · 无订阅</span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 解锁后内容（支付成功后显示）── -->
+    <div id="unlocked-wrapper" style="display:none">
+
+      <!-- 五行平衡图（真实） -->
+      <div class="calc-card">
+        <div class="cc-header">
+          <h2>⊞ <span class="en">Elemental Balance Analysis</span><span class="zh">五行平衡分析</span></h2>
+          <p><span class="en">Distribution across your eight characters (八字)</span><span class="zh">你的八个字中五行分布情况</span></p>
+        </div>
+        <div class="cc-body" id="balance-content"></div>
+      </div>
+
+      <!-- 日主解读 -->
+      <div class="dm-card" id="dm-content"></div>
+
+      <!-- 缺失五行 -->
+      <div id="missing-content" class="missing-card has-missing"></div>
+
+      <!-- AI 深度解读（加载中 → 完成） -->
+      <div id="ai-analysis-section" style="display:none"></div>
+
+    </div>
+
+    <!-- ── 壁纸区块（解锁后展示）── -->
+    <div id="wallpaper-section" style="display:none"></div>
+
+    <!-- 相关文章 -->
+    <div style="margin-top:3rem">
+      <h2 style="font-size:1.5rem;margin-bottom:1.5rem">
+        <span class="en">Learn More About Your Chart</span><span class="zh">深入了解你的命盘</span>
+      </h2>
+      <div class="grid-3">
+        <a href="/learn/what-is-bazi-four-pillars/" class="article-card" style="display:block">
+          <div class="a-thumb water">🌊</div>
+          <div class="a-body">
+            <h3><span class="en">What Is Your Day Master?</span><span class="zh">什么是日主？</span></h3>
+          </div>
+        </a>
+        <a href="/learn/five-elements-complete-guide/" class="article-card" style="display:block">
+          <div class="a-thumb fire">🔥</div>
+          <div class="a-body">
+            <h3><span class="en">The Five Elements Guide</span><span class="zh">五行详解</span></h3>
+          </div>
+        </a>
+        <a href="/learn/missing-elements-how-to-remedy/" class="article-card" style="display:block">
+          <div class="a-thumb wood">🌿</div>
+          <div class="a-body">
+            <h3><span class="en">Missing Elements & Remedies</span><span class="zh">缺失五行与补救</span></h3>
+          </div>
+        </a>
+      </div>
+    </div>
+
+  </div><!-- /results -->
+</main>
+
+<div id="footer-placeholder"></div>
+<script src="/js/components.js"></script>
+<script src="/js/bazi.js"></script>
+<script src="/js/payment.js"></script>
+<script src="/js/wallpaper.js"></script>
+<script>
+initComponents('calculator');
+
+// 全局当前命盘数据（供支付流程使用）
+window._currentChart = null;
+
+// ── 点击解锁按钮 ──
+function handleUnlockClick() {
+  if (!window._currentChart) {
+    alert(getLang()==='zh' ? '请先计算你的命盘。' : 'Please calculate your chart first.');
+    return;
+  }
+  startPayment(window._currentChart.chartHash, getLang());
+}
+
+// ── 渲染免费摘要 ──
+function renderFreeSummary(data) {
+  const isZh = getLang()==='zh';
+  const EL_ZH = {Wood:'木',Fire:'火',Earth:'土',Metal:'金',Water:'水'};
+  const dm = data.pillars.day;
+  const counts = Object.entries(data.balance)
+    .map(([e,n]) => `${isZh?EL_ZH[e]:e}: ${n}`).join('  ·  ');
+  const el = document.getElementById('free-summary');
+  if (el) {
+    el.innerHTML = isZh
+      ? `日主：<strong>${dm.stem}（${EL_ZH[dm.stemEl]}）</strong> &nbsp;|&nbsp; 五行分布：${counts}`
+      : `Day Master: <strong>${dm.stem} (${dm.stemEl})</strong> &nbsp;|&nbsp; Elements: ${counts}`;
+  }
+}
+
+// ── 渲染解锁后内容 ──
+function renderUnlockedContent(data) {
+  const isZh = getLang()==='zh';
+  renderBalance(data);
+  renderDayMaster(data);
+  renderMissing(data);
+  document.getElementById('locked-wrapper').style.display   = 'none';
+  document.getElementById('unlocked-wrapper').style.display = 'block';
+  showUnlockSuccess(isZh?'zh':'en');
+  // 渲染壁纸区块（解锁完整解读后显示）
+  const wpUnlocked = isWallpaperUnlocked ? isWallpaperUnlocked(data.chartHash) : false;
+  renderWallpaperSection(data.pillars, data.dayMaster, data.missing, wpUnlocked, isZh?'zh':'en');
+}
+
+// ── 主计算（覆盖 bazi.js 的 doCalculate）──
+function doCalculate() {
+  const y = parseInt(document.getElementById('inp-year').value);
+  const m = parseInt(document.getElementById('inp-month').value);
+  const d = parseInt(document.getElementById('inp-day').value);
+  const h = parseInt(document.getElementById('inp-hour').value);
+  if (!y||!m||!d) {
+    alert(getLang()==='zh'?'请填写完整的出生信息。':'Please fill in all birth details.');
+    return;
+  }
+
+  const data = calculateFourPillars(y,m,d,h);
+  const chartHash = getChartHash(data.pillars);
+  window._currentChart = { ...data, chartHash };
+
+  // 渲染免费四柱
+  renderPillars(data.pillars);
+  renderFreeSummary(data);
+
+  // 检查是否已解锁
+  if (isUnlocked(chartHash)) {
+    renderUnlockedContent(data);
+    // 如果没有AI解读，触发请求
+    requestAIAnalysis(data, chartHash);
+  } else {
+    document.getElementById('locked-wrapper').style.display   = 'block';
+    document.getElementById('unlocked-wrapper').style.display = 'none';
+  }
+
+  document.getElementById('results').classList.add('show');
+  setTimeout(()=>document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'}), 100);
+}
+
+// ── 请求 AI 解读 ──
+async function requestAIAnalysis(data, chartHash) {
+  const lang = getLang();
+  showAnalysisLoading(lang);
+  try {
+    const analysis = await requestAnalysis(
+      data.pillars, data.balance, data.missing, data.weak, data.strong,
+      lang, chartHash
+    );
+    renderAnalysis(analysis, lang);
+  } catch(err) {
+    const el = document.getElementById('ai-analysis-section');
+    if (el) el.innerHTML = `<div class="interp-card" style="border-color:rgba(168,50,50,.3)">
+      <p style="color:var(--verm)">${lang==='zh'?'解读生成失败，请稍后刷新重试。':'Analysis failed. Please refresh and try again.'}</p>
+    </div>`;
+  }
+}
+
+// ── 支付回调处理（区分解读/壁纸两种产品）──
+(async function() {
+  const ret = checkPaymentReturn();
+  if (!ret || !ret.orderId) return;
+
+  cleanUrl(); // 清理 URL 参数
+  const lang = ret.lang || 'en';
+  const isWp = ret.productType === 'wallpaper';
+
+  try {
+    const token = await handlePaymentReturn(ret.orderId, ret.chartHash, lang);
+
+    if (isWp) saveWpToken(ret.element, token);
+
+    document.getElementById('payment-status').style.display = 'none';
+
+    if (window._currentChart) {
+      const chartUnlocked = isUnlocked(window._currentChart.chartHash);
+      if (chartUnlocked) {
+        renderUnlockedContent(window._currentChart);
+        requestAIAnalysis(window._currentChart, window._currentChart.chartHash);
+      } else if (isWp) {
+        // 仅壁纸解锁，命盘解读区仍锁定，但壁纸区刷新
+        const wpUnlocked = isWallpaperUnlocked(window._currentChart.chartHash);
+        renderWallpaperSection(
+          window._currentChart.pillars, window._currentChart.dayMaster,
+          window._currentChart.missing, wpUnlocked, lang
+        );
+      }
+    } else {
+      // 命盘数据不在内存（用户刷新过页面），提示重新计算
+      document.getElementById('payment-status').style.display = 'block';
+      document.getElementById('payment-status').innerHTML = `
+        <div class="unlock-success-banner" style="display:flex">
+          <span class="check">✅</span>
+          <span>${lang==='zh'
+            ? '支付成功！请重新填写出生信息并点击计算，即可查看已解锁内容。'
+            : 'Payment successful! Please re-enter your birth details and calculate to view your unlocked content.'}</span>
+        </div>`;
+    }
+  } catch(err) {
+    console.error('Payment return error:', err);
+    document.getElementById('payment-status').style.display = 'block';
+    document.getElementById('payment-status').innerHTML = `
+      <div class="calc-card" style="padding:1.5rem;border-color:rgba(168,50,50,.3)">
+        <p style="color:var(--verm)">${lang==='zh'
+          ? '支付验证失败，请联系客服并提供您的订单号：' + ret.orderId
+          : 'Payment verification failed. Please contact support with your order ID: ' + ret.orderId}</p>
+      </div>`;
+  }
+})();
+</script>
+</body>
+</html>
