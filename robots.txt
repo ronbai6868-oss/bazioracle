@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://bazioracle.net/sitemap.xml
+Sitemap: https://getbazioracle.com/sitemap.xml
