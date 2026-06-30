@@ -8,7 +8,7 @@
 const STORE_URL  = "https://your-store-link.com"; // ← 替换成你的跨境电商店铺链接
 const STORE_NAME = "BaZi Element Shop";           // ← 你的店铺名称
 const SITE_URL   = "https://getbazioracle.com";   // ← 你购买的域名
-const GA_ID      = "G-XXXXXXXXXX";               // ← Google Analytics ID（注册后填写）
+const GA_ID      = "G-N01MENQCSC";               // ← Google Analytics ID（注册后填写）
 // ────────────────────────────────────────────────────
 
 // ── 语言检测（从URL参数读取，无需存储）─────────────────
