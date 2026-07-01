@@ -27,7 +27,7 @@ export default async function handler(req, res) {
 
     // ── 查询 LS 最近100个已支付订单 ──────────────────────
     const lsRes = await fetch(
-      'https://api.lemonsqueezy.com/v1/orders?page[size]=100&sort=-createdAt&filter[status]=paid',
+      'https://api.lemonsqueezy.com/v1/orders?page[size]=100&sort=-createdAt',
       {
         headers: {
           'Accept':        'application/vnd.api+json',
@@ -53,6 +53,8 @@ export default async function handler(req, res) {
     // 两个路径都检查，确保能找到
     const matched = orders.find(order => {
       const attrs = order.attributes || {};
+      // ★ 只匹配已支付的订单
+      if (attrs.status !== 'paid') return false;
       // 路径1：orders API（最常见）
       const cd1 = attrs.first_order_item?.custom_data;
       // 路径2：有些版本 LS 会放在顶层 meta
