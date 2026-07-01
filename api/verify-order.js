@@ -51,6 +51,17 @@ export default async function handler(req, res) {
     // LS webhook 的 custom_data 在 meta.custom_data
     // LS orders API 的 custom_data 在 attributes.first_order_item.custom_data
     // 两个路径都检查，确保能找到
+    // ★ 调试：打印所有已支付订单的完整 attributes 结构，找到 custom_data 的实际路径
+    orders.forEach((order, i) => {
+      const attrs = order.attributes || {};
+      if (attrs.status === 'paid') {
+        console.log(`Order[${i}] id=${order.id} keys:`, Object.keys(attrs));
+        console.log(`Order[${i}] first_order_item:`, JSON.stringify(attrs.first_order_item || null));
+        console.log(`Order[${i}] meta:`, JSON.stringify(attrs.meta || null));
+        console.log(`Order[${i}] custom_data:`, JSON.stringify(attrs.custom_data || null));
+      }
+    });
+
     const matched = orders.find(order => {
       const attrs = order.attributes || {};
       // ★ 只匹配已支付的订单
