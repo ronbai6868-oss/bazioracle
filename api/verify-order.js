@@ -1,13 +1,11 @@
 /* ═══════════════════════════════════════════════════
-   /api/verify-order.js  v3.0
+   /api/verify-order.js  v4.0
 
-   ★ 新架构：完全不依赖 order_id
-     LS 的 redirect_url 不支持 {order_id} 模板替换
-     改为：用 chartHash 查 LS 最近已支付订单列表
-           找到 custom_data.chart_hash 匹配的订单即验证通过
+   新架构：从 Vercel KV 读取 webhook 写入的支付记录
+   前端传 chartHash → 查 KV key "paid:{chartHash}" → 签发令牌
 
-   Environment Variables：
-   LS_API_KEY / TOKEN_SECRET
+   环境变量：
+   KV_REST_API_URL / KV_REST_API_TOKEN / TOKEN_SECRET
 ═══════════════════════════════════════════════════ */
 import crypto from 'crypto';
 
@@ -22,71 +20,42 @@ export default async function handler(req, res) {
     const { chartHash, lang } = req.body;
     if (!chartHash) return res.status(400).json({ error: 'Missing chartHash' });
 
-    const { LS_API_KEY, TOKEN_SECRET } = process.env;
-    if (!LS_API_KEY || !TOKEN_SECRET) return res.status(500).json({ error: 'Server misconfiguration' });
-
-    // ── 查询 LS 最近100个已支付订单 ──────────────────────
-    const lsRes = await fetch(
-      'https://api.lemonsqueezy.com/v1/orders?page[size]=100&sort=-createdAt',
-      {
-        headers: {
-          'Accept':        'application/vnd.api+json',
-          'Authorization': `Bearer ${LS_API_KEY}`
-        },
-        signal: AbortSignal.timeout(10000)
-      }
-    );
-
-    if (!lsRes.ok) {
-      const errText = await lsRes.text();
-      console.error('LS orders fetch failed:', lsRes.status, errText);
-      return res.status(402).json({ error: 'Could not verify payment status', code: 'LS_ERROR' });
+    const { KV_REST_API_URL, KV_REST_API_TOKEN, TOKEN_SECRET } = process.env;
+    if (!KV_REST_API_URL || !KV_REST_API_TOKEN || !TOKEN_SECRET) {
+      return res.status(500).json({ error: 'Server misconfiguration' });
     }
 
-    const ordersData = await lsRes.json();
-    const orders     = ordersData.data || [];
-    console.log(`Checking ${orders.length} paid orders for hash=${chartHash.slice(0,8)}`);
-
-    // ── 找到 custom_data.chart_hash 匹配的订单 ───────────
-    // LS webhook 的 custom_data 在 meta.custom_data
-    // LS orders API 的 custom_data 在 attributes.first_order_item.custom_data
-    // 两个路径都检查，确保能找到
-    // ★ 调试：打印所有已支付订单的完整 attributes 结构，找到 custom_data 的实际路径
-    orders.forEach((order, i) => {
-      const attrs = order.attributes || {};
-      if (attrs.status === 'paid') {
-        console.log(`Order[${i}] id=${order.id} keys:`, Object.keys(attrs));
-        console.log(`Order[${i}] first_order_item:`, JSON.stringify(attrs.first_order_item || null));
-        console.log(`Order[${i}] meta:`, JSON.stringify(attrs.meta || null));
-        console.log(`Order[${i}] custom_data:`, JSON.stringify(attrs.custom_data || null));
-      }
+    // ── 从 KV 读取支付记录 ────────────────────────────
+    const kvKey  = `paid:${chartHash}`;
+    const kvRes  = await fetch(`${KV_REST_API_URL}/get/${encodeURIComponent(kvKey)}`, {
+      headers: { Authorization: `Bearer ${KV_REST_API_TOKEN}` }
     });
 
-    const matched = orders.find(order => {
-      const attrs = order.attributes || {};
-      // ★ 只匹配已支付的订单
-      if (attrs.status !== 'paid') return false;
-      // 路径1：orders API（最常见）
-      const cd1 = attrs.first_order_item?.custom_data;
-      // 路径2：有些版本 LS 会放在顶层 meta
-      const cd2 = attrs.meta?.custom_data;
-      // 路径3：直接在 attributes 上
-      const cd3 = attrs.custom_data;
-      const cd  = cd1 || cd2 || cd3 || {};
-      return cd.chart_hash === chartHash;
-    });
+    if (!kvRes.ok) {
+      const err = await kvRes.text();
+      console.error('KV get failed:', kvRes.status, err);
+      return res.status(500).json({ error: 'KV read failed' });
+    }
 
-    if (!matched) {
-      console.log(`No paid order found for chartHash=${chartHash.slice(0,8)}`);
+    const kvData = await kvRes.json();
+    // Vercel KV REST API 返回 { result: "..." } 或 { result: null }
+    const raw = kvData.result;
+
+    if (!raw) {
+      console.log(`KV miss: paid:${chartHash.slice(0,8)} not found yet`);
       return res.status(402).json({ error: 'Payment not found yet', code: 'NOT_FOUND' });
     }
 
-    const orderId = matched.id;
-    console.log(`✅ Verified order=${orderId} for hash=${chartHash.slice(0,8)}`);
+    let record;
+    try { record = JSON.parse(raw); }
+    catch { return res.status(500).json({ error: 'KV data corrupt' }); }
 
-    // ── 生成签名令牌（2小时有效）─────────────────────────
+    const orderId = record.orderId;
+    console.log(`✅ KV hit: order=${orderId} hash=${chartHash.slice(0,8)}`);
+
+    // ── 签发令牌（2小时有效）─────────────────────────
     const expiresAt = Date.now() + 2 * 60 * 60 * 1000;
-    const payload   = JSON.stringify({ orderId, chartHash, lang: lang || 'en', expiresAt });
+    const payload   = JSON.stringify({ orderId, chartHash, lang: lang || record.lang || 'en', expiresAt });
     const sig       = crypto.createHmac('sha256', TOKEN_SECRET).update(payload).digest('hex');
     const token     = Buffer.from(payload).toString('base64url') + '.' + sig;
 
