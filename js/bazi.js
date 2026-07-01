@@ -323,20 +323,76 @@ function renderPillars(pillars) {
 function renderBalance(data) {
   const { balance, total } = data;
   const isZh = getLang() === 'zh';
-  let bH = '';
-  Object.entries(balance).forEach(([el, count]) => {
-    const pct = Math.round(count / total * 100);
-    const s   = count===0?(isZh?'缺失':'Missing'):count===1?(isZh?'薄弱':'Weak'):count>=3?(isZh?'旺盛':'Strong'):'';
-    const sc  = count<=1?'s-weak':count>=3?'s-strong':'s-ok';
-    bH += `<div class="el-row">
-      <span class="el-name" style="color:${EL_COLOR[el]}">${EL_EMOJI[el]} ${isZh?EL_ZH[el]:el}</span>
-      <div class="el-bar-bg"><div class="el-bar" style="width:${pct}%;background:${EL_COLOR[el]}"></div></div>
+
+  // ── 五边形雷达图数据 ──
+  const EL_ORDER = ['Wood','Fire','Earth','Metal','Water'];
+  const EL_ZH_L  = {Wood:'木',Fire:'火',Earth:'土',Metal:'金',Water:'水'};
+  const EL_EMO   = {Wood:'🌿',Fire:'🔥',Earth:'⛰️',Metal:'⚔️',Water:'🌊'};
+  const EL_COL   = {Wood:'#3D6B47',Fire:'#c0392b',Earth:'#B8892B',Metal:'#6B7A8D',Water:'#2C5282'};
+
+  const W = 280, H = 280, cx = W/2, cy = H/2, R = 100, rInner = R * 0.2;
+  // 五个顶点角度（从顶部开始，顺时针）
+  const angles = EL_ORDER.map((_,i) => -Math.PI/2 + i * 2*Math.PI/5);
+  const pts = (r) => angles.map(a => [cx + r*Math.cos(a), cy + r*Math.sin(a)]);
+  const toPath = (points) => points.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ')+'Z';
+
+  // 同心五边形网格
+  let gridSvg = '';
+  [0.25,0.5,0.75,1.0].forEach(f => {
+    gridSvg += `<path d="${toPath(pts(R*f))}" fill="none" stroke="rgba(201,168,76,.15)" stroke-width="1"/>`;
+  });
+  // 轴线
+  const outerPts = pts(R);
+  angles.forEach((_,i) => {
+    gridSvg += `<line x1="${cx}" y1="${cy}" x2="${outerPts[i][0].toFixed(1)}" y2="${outerPts[i][1].toFixed(1)}" stroke="rgba(201,168,76,.1)" stroke-width="1"/>`;
+  });
+
+  // 数据多边形
+  const maxVal = total || 8;
+  const dataR  = EL_ORDER.map(el => Math.max(rInner, R * (balance[el] || 0) / maxVal));
+  const dataPts = angles.map((a,i) => [cx + dataR[i]*Math.cos(a), cy + dataR[i]*Math.sin(a)]);
+  const dataPath = toPath(dataPts);
+
+  // 顶点标签
+  let labelSvg = '';
+  EL_ORDER.forEach((el,i) => {
+    const lx = cx + (R+28)*Math.cos(angles[i]);
+    const ly = cy + (R+28)*Math.sin(angles[i]);
+    const pct = Math.round((balance[el]||0)/maxVal*100);
+    const name = isZh ? EL_ZH_L[el] : el.slice(0,2);
+    labelSvg += `<text x="${lx.toFixed(1)}" y="${(ly-8).toFixed(1)}" text-anchor="middle" font-size="13" font-weight="bold" fill="${EL_COL[el]}" font-family="serif">${EL_EMO[el]} ${name}</text>`;
+    labelSvg += `<text x="${lx.toFixed(1)}" y="${(ly+8).toFixed(1)}" text-anchor="middle" font-size="11" fill="rgba(255,255,255,.6)" font-family="sans-serif">${pct}%</text>`;
+  });
+
+  const radarSvg = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="overflow:visible">
+    ${gridSvg}
+    <path d="${dataPath}" fill="rgba(201,168,76,.18)" stroke="rgba(201,168,76,.8)" stroke-width="1.5"/>
+    ${dataPts.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="4" fill="#c9a84c"/>`).join('')}
+    ${labelSvg}
+  </svg>`;
+
+  // ── 条形图 ──
+  let bars = '';
+  EL_ORDER.forEach(el => {
+    const count = balance[el] || 0;
+    const pct   = Math.round(count / maxVal * 100);
+    const s     = count===0?(isZh?'缺失':'Missing'):count===1?(isZh?'薄弱':'Weak'):count>=3?(isZh?'旺盛':'Strong'):'';
+    const sc    = count<=1?'s-weak':count>=3?'s-strong':'s-ok';
+    bars += `<div class="el-row">
+      <span class="el-name" style="color:${EL_COL[el]}">${EL_EMO[el]} ${isZh?EL_ZH_L[el]:el}</span>
+      <div class="el-bar-bg"><div class="el-bar" style="width:${pct}%;background:${EL_COL[el]}"></div></div>
       <span class="el-pct">${pct}%</span>
-      <span class="el-status ${sc}">${s}</span>
+      ${s?`<span class="el-status ${sc}">${s}</span>`:''}
     </div>`;
   });
-  document.getElementById('balance-content').innerHTML = bH;
+
+  document.getElementById('balance-content').innerHTML = `
+    <div style="display:flex;flex-wrap:wrap;gap:1.5rem;align-items:center;justify-content:center">
+      <div style="flex:0 0 auto">${radarSvg}</div>
+      <div style="flex:1;min-width:200px">${bars}</div>
+    </div>`;
 }
+
 
 function renderDayMaster(data) {
   const isZh = getLang() === 'zh';
