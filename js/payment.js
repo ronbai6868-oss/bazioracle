@@ -1,5 +1,6 @@
 /* ═══════════════════════════════════════════════════
-   payment.js  v2.2
+   payment.js  v3.0
+   ★ 不再依赖 order_id，改用 chartHash 验证
 ═══════════════════════════════════════════════════ */
 
 /* ── 命盘 Hash ───────────────────────────────────── */
@@ -35,23 +36,46 @@ function isUnlocked(chartHash) {
 
 function getStoredToken() { return loadToken(); }
 
+/* ── 发起支付 ────────────────────────────────────── */
+function startPayment(chartHash, lang, productType = 'reading', element = null) {
+  const btnId = productType === 'wallpaper' ? `btn-wp-${element}` : 'unlock-btn';
+  const btn   = document.getElementById(btnId);
+  if (btn) btn.disabled = true;
+
+  const body = productType === 'wallpaper'
+    ? { chartHash, lang, productType: 'wallpaper', element }
+    : { chartHash, lang, productType: 'reading' };
+
+  fetch('/api/create-checkout', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify(body)
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (!data.checkoutUrl) throw new Error(data.error || 'No checkout URL');
+    window.location.href = data.checkoutUrl;
+  })
+  .catch(err => {
+    console.error('startPayment error:', err);
+    alert(lang === 'zh' ? '支付跳转失败，请稍后重试。' : 'Could not redirect to checkout. Please try again.');
+    if (btn) btn.disabled = false;
+  });
+}
+
 /* ── 支付回调处理 ────────────────────────────────── */
-async function handlePaymentReturn(orderId, chartHash, lang) {
+// ★ 改为传 chartHash，不再传 orderId
+async function handlePaymentReturn(chartHash, lang) {
   showPaymentVerifying(lang);
 
-  // ★ 防御：orderId 是字面量 {order_id} 说明 LS 模板未替换
-  if (!orderId || orderId === '{order_id}') {
-    console.error('order_id 未被 Lemon Squeezy 替换，请检查 redirect_url 配置');
-    throw new Error('Invalid order_id from Lemon Squeezy redirect');
-  }
-
-  // 重试最多 5 次（Webhook 可能比 redirect 晚几秒）
-  for (let attempt = 1; attempt <= 5; attempt++) {
+  // 重试最多6次（每次间隔递增，最多等待约30秒）
+  // LS 订单从支付完成到 API 可查询通常需要 2-5 秒
+  for (let attempt = 1; attempt <= 6; attempt++) {
     try {
       const res = await fetch('/api/verify-order', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ orderId, chartHash, lang })
+        body:    JSON.stringify({ chartHash, lang })
       });
       const data = await res.json();
 
@@ -60,23 +84,23 @@ async function handlePaymentReturn(orderId, chartHash, lang) {
         return data.token;
       }
 
-      if (res.status === 402 && attempt < 5) {
-        console.log(`verify-order 402，第 ${attempt} 次重试...`, data);
-        await sleep(2000 * attempt);
+      if (res.status === 402 && attempt < 6) {
+        console.log(`Attempt ${attempt}: order not ready yet, retrying in ${attempt * 2}s...`);
+        await sleep(attempt * 2000);
         continue;
       }
 
       throw new Error(data.error || 'Verification failed');
 
     } catch (err) {
-      if (attempt === 5) throw err;
+      if (attempt === 6) throw err;
       await sleep(2000);
     }
   }
-  throw new Error('Could not verify payment status');
+  throw new Error('Could not verify payment status after multiple attempts');
 }
 
-/* ── 调用 AI 解读 ─────────────────────────────────── */
+/* ── 调用 AI 解读 ────────────────────────────────── */
 async function requestAnalysis(pillars, balance, missing, weak, strong, lang, chartHash) {
   const token = getStoredToken();
   if (!token) throw new Error('No unlock token');
@@ -151,15 +175,14 @@ function showUnlockSuccess(lang) {
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-/* ── 检查 URL 参数（支付回调）────────────────────── */
+/* ── 检查 URL 支付回调参数 ───────────────────────── */
 function checkPaymentReturn() {
   const params = new URLSearchParams(window.location.search);
   if (params.get('unlock') !== 'pending') return null;
-  const orderId = params.get('order_id');
-  // ★ 如果 orderId 是字面量模板，当作没有
+  const hash = params.get('hash');
+  if (!hash) return null;
   return {
-    orderId:     (orderId && orderId !== '{order_id}') ? orderId : null,
-    chartHash:   params.get('hash'),
+    chartHash:   hash,
     lang:        params.get('lang') || 'en',
     productType: params.get('type') || 'reading',
     element:     params.get('element') || null
@@ -184,7 +207,9 @@ function saveWpToken(element, token) {
   } catch(e) {}
 }
 
-function isWallpaperUnlocked(chartHash) { return isUnlocked(chartHash); }
+function isWallpaperUnlocked(chartHash) {
+  return isUnlocked(chartHash);
+}
 
 function isWpElementUnlocked(element) {
   try {
@@ -195,34 +220,4 @@ function isWpElementUnlocked(element) {
     const payload = JSON.parse(atob(map[element].slice(0, lastDot).replace(/-/g,'+').replace(/_/g,'/')));
     return Date.now() <= payload.expiresAt;
   } catch { return false; }
-}
-
-/* ── 发起支付（支持完整解读 + 壁纸）─────────────── */
-function startPayment(chartHash, lang, productType = 'reading', element = null) {
-  const btnId = productType === 'wallpaper' ? `btn-wp-${element}` : 'unlock-btn';
-  const btn   = document.getElementById(btnId);
-  if (btn) btn.disabled = true;
-
-  const body = productType === 'wallpaper'
-    ? { chartHash, lang, productType: 'wallpaper', element }
-    : { chartHash, lang, productType: 'reading' };
-
-  fetch('/api/create-checkout', {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify(body)
-  })
-  .then(r => r.json())
-  .then(data => {
-    if (!data.checkoutUrl) {
-      console.error('Checkout error:', data);
-      throw new Error(data.error || 'No checkout URL');
-    }
-    window.location.href = data.checkoutUrl;
-  })
-  .catch(err => {
-    console.error('startPayment error:', err);
-    alert(lang === 'zh' ? '支付跳转失败，请稍后重试。' : 'Could not redirect to checkout. Please try again.');
-    if (btn) btn.disabled = false;
-  });
 }
