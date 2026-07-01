@@ -51,7 +51,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ received: true, action: 'not_paid' });
     }
 
-    const orderId   = String(event.data?.id || '');
+    const orderId   = String(event.data?.id ?? '');
     const chartHash = customData?.chart_hash;
     const lang      = customData?.lang || 'en';
 
