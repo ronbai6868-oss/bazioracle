@@ -272,7 +272,10 @@ function startPayment(chartHash, lang, productType = 'reading', element = null) 
   })
   .then(r => r.json())
   .then(data => {
-    if (!data.checkoutUrl) throw new Error(data.error || 'No checkout URL');
+    if (!data.checkoutUrl) {
+      if (data.debug) console.error('LS debug detail:', data.debug);
+      throw new Error(data.error || 'No checkout URL');
+    }
     window.location.href = data.checkoutUrl;
   })
   .catch(err => {
