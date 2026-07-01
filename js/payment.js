@@ -149,18 +149,37 @@ function showAnalysisLoading(lang) {
 function renderAnalysis(analysisText, lang) {
   const el = document.getElementById('ai-analysis-section');
   if (!el) return;
-  const html = analysisText
-    .replace(/\*\*(.+?)\*\*/g, '<h4>$1</h4>')
-    .split('\n\n')
-    .map(p => p.trim() ? `<p>${p.replace(/\n/g,'<br>')}</p>` : '')
-    .join('');
+  // 把 **标题** 转为带 .ai-section 包裹的结构，确保 CSS 样式生效
+  let sections = [];
+  let currentTitle = '';
+  let currentLines = [];
+  analysisText.split('\n').forEach(line => {
+    const titleMatch = line.match(/^\*\*(.+?)\*\*\s*$/);
+    if (titleMatch) {
+      if (currentTitle || currentLines.length) {
+        sections.push({ title: currentTitle, body: currentLines.join('\n').trim() });
+      }
+      currentTitle = titleMatch[1];
+      currentLines = [];
+    } else {
+      if (line.trim()) currentLines.push(line);
+    }
+  });
+  if (currentTitle || currentLines.length) {
+    sections.push({ title: currentTitle, body: currentLines.join('\n').trim() });
+  }
+  const html = sections.map(s => `
+    <div class="ai-section">
+      ${s.title ? `<h4>${s.title}</h4>` : ''}
+      ${s.body ? `<p>${s.body.replace(/\n/g,'<br>')}</p>` : ''}
+    </div>`).join('');
   el.innerHTML = `
     <div class="ai-analysis-card">
       <div class="ai-analysis-header">
         <span class="ai-badge-pro">✦ AI ${lang==='zh'?'深度解读':'Deep Reading'}</span>
         <h3>${lang==='zh'?'您的专属八字命盘解读':'Your Personal BaZi Analysis'}</h3>
       </div>
-      <div class="ai-content">${html}</div>
+      ${html}
     </div>`;
 }
 
