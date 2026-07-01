@@ -324,29 +324,30 @@ async function requestAIAnalysis(data, chartHash) {
   }
 }
 
-// ── 支付回调处理（区分解读/壁纸两种产品）──
+// ── 支付回调处理（★ v3.0：不依赖 order_id，用 chartHash 验证）──
 (async function() {
   const ret = checkPaymentReturn();
-  if (!ret || !ret.orderId) return;
+  if (!ret) return;  // 不是支付回调页面
 
-  cleanUrl(); // 清理 URL 参数
+  cleanUrl(); // 立即清理 URL 参数，防止刷新重复触发
   const lang = ret.lang || 'en';
   const isWp = ret.productType === 'wallpaper';
 
   try {
-    const token = await handlePaymentReturn(ret.orderId, ret.chartHash, lang);
+    // ★ 只传 chartHash，不传 orderId
+    const token = await handlePaymentReturn(ret.chartHash, lang);
 
-    if (isWp) saveWpToken(ret.element, token);
+    if (isWp && ret.element) saveWpToken(ret.element, token);
 
     document.getElementById('payment-status').style.display = 'none';
 
     if (window._currentChart) {
+      // 内存里有命盘数据（正常情况：LS 跳回后页面未刷新）
       const chartUnlocked = isUnlocked(window._currentChart.chartHash);
       if (chartUnlocked) {
         renderUnlockedContent(window._currentChart);
         requestAIAnalysis(window._currentChart, window._currentChart.chartHash);
       } else if (isWp) {
-        // 仅壁纸解锁，命盘解读区仍锁定，但壁纸区刷新
         const wpUnlocked = isWallpaperUnlocked(window._currentChart.chartHash);
         renderWallpaperSection(
           window._currentChart.pillars, window._currentChart.dayMaster,
@@ -354,7 +355,7 @@ async function requestAIAnalysis(data, chartHash) {
         );
       }
     } else {
-      // 命盘数据不在内存（用户刷新过页面），提示重新计算
+      // 命盘数据不在内存（用户刷新过），提示重新计算
       document.getElementById('payment-status').style.display = 'block';
       document.getElementById('payment-status').innerHTML = `
         <div class="unlock-success-banner" style="display:flex">
@@ -370,8 +371,8 @@ async function requestAIAnalysis(data, chartHash) {
     document.getElementById('payment-status').innerHTML = `
       <div class="calc-card" style="padding:1.5rem;border-color:rgba(168,50,50,.3)">
         <p style="color:var(--verm)">${lang==='zh'
-          ? '支付验证失败，请联系客服并提供您的订单号：' + ret.orderId
-          : 'Payment verification failed. Please contact support with your order ID: ' + ret.orderId}</p>
+          ? '支付验证失败，请稍后刷新重试，或联系客服。'
+          : 'Payment verification failed. Please refresh the page or contact support.'}</p>
       </div>`;
   }
 })();
