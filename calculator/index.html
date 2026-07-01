@@ -235,6 +235,35 @@ initComponents('calculator');
 // 全局当前命盘数据（供支付流程使用）
 window._currentChart = null;
 
+// ★ 页面加载时：若 sessionStorage 有命盘数据则自动恢复（处理语言切换/刷新）
+(function autoRestoreChart() {
+  // 支付回调时不在此处恢复（由支付回调块处理）
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('unlock') === 'pending') return;
+
+  try {
+    const saved = sessionStorage.getItem('bazi_chart');
+    if (!saved) return;
+    const data = JSON.parse(saved);
+    window._currentChart = data;
+
+    renderPillars(data.pillars);
+    renderFreeSummary(data);
+    document.getElementById('results').classList.add('show');
+
+    if (isUnlocked(data.chartHash)) {
+      renderUnlockedContent(data);
+      // 只有在 AI 解读区为空时才重新请求
+      if (!document.getElementById('ai-analysis-section').innerHTML.trim()) {
+        requestAIAnalysis(data, data.chartHash);
+      }
+    } else {
+      document.getElementById('locked-wrapper').style.display   = 'block';
+      document.getElementById('unlocked-wrapper').style.display = 'none';
+    }
+  } catch(e) {}
+})();
+
 // ── 点击解锁按钮 ──
 function handleUnlockClick() {
   if (!window._currentChart) {
@@ -288,6 +317,14 @@ function doCalculate() {
   const chartHash = getChartHash(data.pillars);
   window._currentChart = { ...data, chartHash };
 
+  // ★ 切换命盘时清空旧的解锁内容，避免残留
+  document.getElementById('unlock-success').style.display    = 'none';
+  document.getElementById('unlocked-wrapper').style.display  = 'none';
+  document.getElementById('ai-analysis-section').style.display = 'none';
+  document.getElementById('ai-analysis-section').innerHTML   = '';
+  document.getElementById('wallpaper-section').style.display = 'none';
+  document.getElementById('payment-status').style.display    = 'none';
+
   // 渲染免费四柱
   renderPillars(data.pillars);
   renderFreeSummary(data);
@@ -295,12 +332,14 @@ function doCalculate() {
   // 检查是否已解锁
   if (isUnlocked(chartHash)) {
     renderUnlockedContent(data);
-    // 如果没有AI解读，触发请求
     requestAIAnalysis(data, chartHash);
   } else {
     document.getElementById('locked-wrapper').style.display   = 'block';
     document.getElementById('unlocked-wrapper').style.display = 'none';
   }
+
+  // ★ 把命盘数据存入 sessionStorage，支付回调后可自动恢复
+  try { sessionStorage.setItem('bazi_chart', JSON.stringify(window._currentChart)); } catch(e) {}
 
   document.getElementById('results').classList.add('show');
   setTimeout(()=>document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'}), 100);
@@ -341,12 +380,25 @@ async function requestAIAnalysis(data, chartHash) {
 
     document.getElementById('payment-status').style.display = 'none';
 
+    // ★ 优先用内存数据，内存没有则从 sessionStorage 恢复
+    if (!window._currentChart) {
+      try {
+        const saved = sessionStorage.getItem('bazi_chart');
+        if (saved) window._currentChart = JSON.parse(saved);
+      } catch(e) {}
+    }
+
     if (window._currentChart) {
-      // 内存里有命盘数据（正常情况：LS 跳回后页面未刷新）
+      // 恢复命盘显示
+      renderPillars(window._currentChart.pillars);
+      renderFreeSummary(window._currentChart);
+      document.getElementById('results').classList.add('show');
+
       const chartUnlocked = isUnlocked(window._currentChart.chartHash);
       if (chartUnlocked) {
         renderUnlockedContent(window._currentChart);
         requestAIAnalysis(window._currentChart, window._currentChart.chartHash);
+        setTimeout(()=>document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'}), 200);
       } else if (isWp) {
         const wpUnlocked = isWallpaperUnlocked(window._currentChart.chartHash);
         renderWallpaperSection(
@@ -355,11 +407,11 @@ async function requestAIAnalysis(data, chartHash) {
         );
       }
     } else {
-      // 命盘数据不在内存（用户刷新过），提示重新计算
+      // sessionStorage 也没有（极少情况：用户清了缓存或换了浏览器）
       document.getElementById('payment-status').style.display = 'block';
       document.getElementById('payment-status').innerHTML = `
-        <div class="unlock-success-banner" style="display:flex">
-          <span class="check">✅</span>
+        <div class="unlock-success-banner" style="display:flex;gap:.75rem;align-items:center">
+          <span>✅</span>
           <span>${lang==='zh'
             ? '支付成功！请重新填写出生信息并点击计算，即可查看已解锁内容。'
             : 'Payment successful! Please re-enter your birth details and calculate to view your unlocked content.'}</span>
