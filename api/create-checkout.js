@@ -84,8 +84,6 @@ export default async function handler(req, res) {
       });
     }
 
-    /*──────────────────────────────*/
-
     const productName = isWallpaper
       ? (
           lang === 'zh'
@@ -110,22 +108,19 @@ export default async function handler(req, res) {
             : 'AI-powered complete BaZi analysis'
         );
 
-    /*──────────────────────────────*/
-
     const returnHash = isWallpaper
       ? `${chartHash}_wp_${element}`
       : chartHash;
 
+    // ★ 关键修复：末尾加 &order_id={order_id}
+    // Lemon Squeezy 会在跳转时把 {order_id} 替换成真实订单号
     const redirectUrl =
       `${siteUrl}/calculator/?unlock=pending`
       + `&hash=${encodeURIComponent(returnHash)}`
       + `&lang=${lang || 'en'}`
       + `&type=${productType}`
-      + (element ? `&element=${encodeURIComponent(element)}` : '');
-
-    /*──────────────────────────────*/
-    /* 修复：element 只有壁纸才发送 */
-    /*──────────────────────────────*/
+      + (element ? `&element=${encodeURIComponent(element)}` : '')
+      + `&order_id={order_id}`;
 
     const customData = {
       chart_hash: chartHash,
@@ -136,8 +131,6 @@ export default async function handler(req, res) {
     if (isWallpaper && element) {
       customData.element = element;
     }
-
-    /*──────────────────────────────*/
 
     const body = {
       data: {
@@ -176,8 +169,6 @@ export default async function handler(req, res) {
       }
     };
 
-    /*──────────────────────────────*/
-
     const lsRes = await fetch(
       'https://api.lemonsqueezy.com/v1/checkouts',
       {
@@ -195,8 +186,6 @@ export default async function handler(req, res) {
       }
     );
 
-    /*──────────────────────────────*/
-
     if (!lsRes.ok) {
 
       const err = await lsRes.text();
@@ -207,7 +196,6 @@ export default async function handler(req, res) {
         err
       );
 
-      // 开发阶段直接返回真实错误
       return res.status(lsRes.status).json({
         error: 'Failed to create checkout session',
         lemonStatus: lsRes.status,
@@ -215,8 +203,6 @@ export default async function handler(req, res) {
       });
 
     }
-
-    /*──────────────────────────────*/
 
     const data = await lsRes.json();
 
