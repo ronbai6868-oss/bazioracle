@@ -87,7 +87,11 @@ export default async function handler(req, res) {
     if (!lsRes.ok) {
       const err = await lsRes.text();
       console.error('LS checkout error:', lsRes.status, err);
-      return res.status(502).json({ error: 'Failed to create checkout session' });
+      // 临时调试：把 LS 真实错误带回前端，方便直接在浏览器里看到根因
+      return res.status(502).json({
+        error: 'Failed to create checkout session',
+        debug: err
+      });
     }
 
     const data        = await lsRes.json();
