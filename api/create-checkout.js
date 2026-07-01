@@ -54,10 +54,10 @@ export default async function handler(req, res) {
         attributes: {
           checkout_data: {
             custom: {
-              chart_hash:   chartHash,
-              lang:         lang || 'en',
-              product_type: productType,
-              element:      element || null
+              chart_hash:   String(chartHash),
+              lang:         String(lang || 'en'),
+              product_type: String(productType),
+              element:      String(element || '')
             }
           },
           product_options: {
@@ -86,7 +86,7 @@ export default async function handler(req, res) {
 
     if (!lsRes.ok) {
       const err = await lsRes.text();
-      console.error('LS checkout error:', lsRes.status, err.slice(0, 200));
+      console.error('LS checkout error:', lsRes.status, err);
       return res.status(502).json({ error: 'Failed to create checkout session' });
     }
 
