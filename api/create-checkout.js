@@ -1,12 +1,13 @@
 /* ═══════════════════════════════════════════════════
-   /api/create-checkout.js  v2.2
+   /api/create-checkout.js  v3.0
+   Environment Variables：
+   LS_API_KEY / LS_STORE_ID / LS_READING_VARIANT
+   LS_WALLPAPER_VARIANT / SITE_URL
 ═══════════════════════════════════════════════════ */
 export default async function handler(req, res) {
-
   res.setHeader('Access-Control-Allow-Origin', process.env.SITE_URL || '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
@@ -20,10 +21,7 @@ export default async function handler(req, res) {
     const siteUrl     = SITE_URL || 'https://getbazioracle.com';
     const isWallpaper = productType === 'wallpaper';
     const variantId   = isWallpaper ? LS_WALLPAPER_VARIANT : LS_READING_VARIANT;
-
-    if (!variantId) return res.status(500).json({
-      error: isWallpaper ? 'Wallpaper product not configured' : 'Reading product not configured'
-    });
+    if (!variantId) return res.status(500).json({ error: isWallpaper ? 'Wallpaper product not configured' : 'Reading product not configured' });
 
     const productName = isWallpaper
       ? (lang === 'zh' ? `八字壁纸 · ${element}元素` : `BaZi Wallpaper · ${element} Element`)
@@ -35,6 +33,8 @@ export default async function handler(req, res) {
 
     const returnHash = isWallpaper ? `${chartHash}_wp_${element}` : chartHash;
 
+    // ★ 不使用 {order_id} 模板（LS 在 redirect_url 里不替换）
+    // 改为只传 hash，verify-order 用 hash 查 LS 订单列表
     const redirectUrl =
       `${siteUrl}/calculator/?unlock=pending`
       + `&hash=${encodeURIComponent(returnHash)}`
@@ -42,12 +42,13 @@ export default async function handler(req, res) {
       + `&type=${productType}`
       + (element ? `&element=${encodeURIComponent(element)}` : '');
 
+    // ★ custom_data 里的值必须全部是字符串
     const customData = {
-      chart_hash:   chartHash,
-      lang:         lang || 'en',
-      product_type: productType
+      chart_hash:   String(chartHash),
+      lang:         String(lang || 'en'),
+      product_type: String(productType)
     };
-    if (isWallpaper && element) customData.element = element;
+    if (isWallpaper && element) customData.element = String(element);
 
     const body = {
       data: {
@@ -55,22 +56,14 @@ export default async function handler(req, res) {
         attributes: {
           checkout_data: { custom: customData },
           product_options: {
-            name:         productName,
-            description:  productDesc,
+            name:        productName,
+            description: productDesc,
             redirect_url: redirectUrl
-          },
-          checkout_options: {
-            embed:        false,
-            media:        false,
-            logo:         true,
-            desc:         true,
-            discount:     false,
-            button_color: '#c8a86b'
           }
         },
         relationships: {
-          store:   { data: { type: 'stores',   id: String(LS_STORE_ID) } },
-          variant: { data: { type: 'variants', id: String(variantId)   } }
+          store:   { data: { type: 'stores',   id: String(LS_STORE_ID)  } },
+          variant: { data: { type: 'variants', id: String(variantId)    } }
         }
       }
     };
