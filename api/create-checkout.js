@@ -43,8 +43,10 @@ export default async function handler(req, res) {
       + (element ? `&element=${encodeURIComponent(element)}` : '');
 
     // ★ custom_data 里的值必须全部是字符串
+    // ★ custom_data.chart_hash 用 returnHash（壁纸时带 _wp_element 后缀）
+    // 与 redirect_url 里的 hash 参数保持一致，确保 KV key 能匹配
     const customData = {
-      chart_hash:   String(chartHash),
+      chart_hash:   String(returnHash),
       lang:         String(lang || 'en'),
       product_type: String(productType)
     };
