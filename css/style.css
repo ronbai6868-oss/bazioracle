@@ -395,13 +395,33 @@ html[lang="en"] .zh{display:none!important}
   padding:.3rem .75rem;border-radius:20px;
 }
 .ai-analysis-card h3 { color:var(--white);font-size:1.2rem; }
-.ai-section { margin-bottom:1.25rem; }
+.ai-section { margin-bottom:1.5rem; }
 .ai-section h4 {
-  color:var(--gold-l);font-size:.88rem;font-weight:600;
-  text-transform:uppercase;letter-spacing:.08em;margin-bottom:.6rem;
+  color:var(--gold);font-size:1rem;font-weight:700;
+  letter-spacing:.04em;margin-bottom:.75rem;
   font-family:'DM Sans',sans-serif;
+  border-left:3px solid var(--gold);padding-left:.75rem;
 }
-.ai-section p { color:rgba(255,255,255,.75);font-size:.92rem;line-height:1.85; }
+/* ★ 修复：提高正文对比度，从 .75 → 1（纯白），加大字号和行高 */
+.ai-section p  { color:rgba(255,255,255,1);font-size:.95rem;line-height:2; }
+.ai-section li { color:rgba(255,255,255,1);font-size:.95rem;line-height:1.9;margin-bottom:.35rem; }
+.ai-section ul { padding-left:1.25rem;margin:.5rem 0; }
+.ai-section strong { color:var(--gold);font-weight:600; }
+.ai-section em    { color:rgba(255,255,255,.85);font-style:italic; }
+/* 收起/展开 */
+.ai-section-collapsed { display:none; }
+.ai-toggle-wrap { text-align:center;margin-top:1.5rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,.08); }
+.btn-ai-toggle {
+  background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);
+  color:var(--gold);padding:.6rem 1.8rem;border-radius:20px;
+  cursor:pointer;font-size:.88rem;font-family:'DM Sans',sans-serif;transition:all .2s;
+}
+.btn-ai-toggle:hover { background:rgba(201,168,76,.22); }
+/* md-h3/h2 标题样式 */
+.ai-section .md-h3,.ai-section .md-h2,.ai-section .md-h1 {
+  display:block;color:var(--gold);font-weight:700;
+  font-size:.95rem;margin:.75rem 0 .4rem;
+}
 .ai-loading {
   text-align:center;padding:3rem 1rem;color:rgba(255,255,255,.6);font-size:.9rem;
 }
