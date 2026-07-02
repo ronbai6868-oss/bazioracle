@@ -90,10 +90,11 @@ function monthPillar(y, m, d) {
   return pillar(si, bi);
 }
 
-/* 日柱（基准：2000-01-01=戊申日，天干4，地支8） */
+/* 日柱（基准：2000-01-01=戊午日，天干4，地支6）
+   验证：1949-10-01=甲子，2024-02-10=甲辰（春节）✅ */
 function dayPillar(y, m, d) {
   const diff = Math.round((new Date(y,m-1,d) - new Date(2000,0,1)) / 86400000);
-  return pillar(4+diff, 8+diff);
+  return pillar(4+diff, 6+diff);
 }
 
 /* 时柱（五鼠遁日） */
