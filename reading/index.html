@@ -340,7 +340,74 @@ window._downloadPDF = function() {
   ctx.strokeStyle = 'rgba(201,168,76,.3)'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(80,460); ctx.lineTo(W-80,460); ctx.stroke();
 
-  // AI 内容
+  // ── 五行雷达图（Canvas绘制）──
+  {
+    const EL_ORDER = ['Wood','Fire','Earth','Metal','Water'];
+    const EL_COL   = {Wood:'#3D6B47',Fire:'#c0392b',Earth:'#B8892B',Metal:'#6B7A8D',Water:'#2C5282'};
+    const EL_NAME  = lang==='zh'
+      ? {Wood:'木',Fire:'火',Earth:'土',Metal:'金',Water:'水'}
+      : {Wood:'Wood',Fire:'Fire',Earth:'Earth',Metal:'Metal',Water:'Water'};
+    const cx2=W/2, cy2=580, R2=130;
+    const maxV = chart.total || 8;
+    const angles2 = EL_ORDER.map((_,i) => -Math.PI/2 + i*2*Math.PI/5);
+    const pts2 = r => angles2.map(a => [cx2+r*Math.cos(a), cy2+r*Math.sin(a)]);
+    // 网格
+    [0.25,0.5,0.75,1].forEach(f => {
+      const gp = pts2(R2*f);
+      ctx.strokeStyle='rgba(201,168,76,.15)'; ctx.lineWidth=1; ctx.beginPath();
+      gp.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])); ctx.closePath(); ctx.stroke();
+    });
+    // 轴线
+    pts2(R2).forEach(p=>{ctx.strokeStyle='rgba(201,168,76,.1)';ctx.beginPath();ctx.moveTo(cx2,cy2);ctx.lineTo(p[0],p[1]);ctx.stroke();});
+    // 数据多边形
+    const dataR2 = EL_ORDER.map(el=>Math.max(R2*0.15, R2*(chart.balance[el]||0)/maxV));
+    const dp2 = angles2.map((a,i)=>[cx2+dataR2[i]*Math.cos(a),cy2+dataR2[i]*Math.sin(a)]);
+    ctx.fillStyle='rgba(201,168,76,.15)'; ctx.strokeStyle='rgba(201,168,76,.7)'; ctx.lineWidth=2;
+    ctx.beginPath(); dp2.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])); ctx.closePath(); ctx.fill(); ctx.stroke();
+    // 顶点
+    dp2.forEach(p=>{ctx.fillStyle='#C9A84C';ctx.beginPath();ctx.arc(p[0],p[1],5,0,Math.PI*2);ctx.fill();});
+    // 标签
+    EL_ORDER.forEach((el,i)=>{
+      const lx=cx2+(R2+40)*Math.cos(angles2[i]);
+      const ly=cy2+(R2+40)*Math.sin(angles2[i]);
+      const pct=Math.round((chart.balance[el]||0)/maxV*100);
+      ctx.fillStyle=EL_COL[el]; ctx.font='bold 22px serif'; ctx.textAlign='center';
+      ctx.fillText(EL_NAME[el], lx, ly-8);
+      ctx.fillStyle='rgba(255,255,255,.5)'; ctx.font='18px sans-serif';
+      ctx.fillText(pct+'%', lx, ly+14);
+    });
+    // 标题
+    ctx.fillStyle='rgba(201,168,76,.8)'; ctx.font='bold 24px sans-serif'; ctx.textAlign='center';
+    ctx.fillText(lang==='zh'?'五行平衡':'Elemental Balance', cx2, cy2-R2-60);
+  }
+
+  // ── 缺失/薄弱五行 ──
+  {
+    const missing = chart.missing || [];
+    const weak    = chart.weak    || [];
+    if (missing.length || weak.length) {
+      const y0 = 740;
+      ctx.fillStyle='rgba(168,50,50,.8)'; ctx.font='bold 24px sans-serif'; ctx.textAlign='left';
+      ctx.fillText(lang==='zh'?'需要加强的五行：':'Elements to Strengthen:', 80, y0);
+      const EL_EMOJ={Wood:'🌿',Fire:'🔥',Earth:'⛰',Metal:'⚔',Water:'🌊'};
+      const EL_N=lang==='zh'?{Wood:'木',Fire:'火',Earth:'土',Metal:'金',Water:'水'}:{Wood:'Wood',Fire:'Fire',Earth:'Earth',Metal:'Metal',Water:'Water'};
+      let tx=80;
+      [...missing,...weak.filter(w=>!missing.includes(w))].forEach(el=>{
+        ctx.fillStyle='rgba(168,50,50,.9)'; ctx.font='20px sans-serif';
+        const label=EL_EMOJ[el]+' '+EL_N[el]+(missing.includes(el)?(lang==='zh'?' (缺)':' (Missing)'):(lang==='zh'?' (弱)':' (Weak)'));
+        ctx.fillText(label, tx, y0+32); tx+=200;
+      });
+    }
+  }
+
+  const aiStartY = (chart.missing?.length||chart.weak?.length) ? 820 : 760;
+
+  // 分割线2
+  ctx.strokeStyle = 'rgba(201,168,76,.3)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(80, aiStartY-20); ctx.lineTo(W-80, aiStartY-20); ctx.stroke();
+
+  // AI 内容（重用 aiStartY）
+  let _pdfAiY = aiStartY;
   const sections = document.querySelectorAll('#ai-sections-wrap .ai-section');
   ctx.textAlign = 'left'; ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.font = `28px sans-serif`;
   let y = 500;
@@ -390,7 +457,38 @@ function wrapCanvasText(ctx, text, maxWidth) {
   return result;
 }
 
-// ── 主流程 ────────────────────────────────────────────
+// ── 壁纸支付回调：自动下载 ──
+const wpElement = params.get('element');
+if (isPending && params.get('type') === 'wallpaper' && wpElement) {
+  (async function() {
+    document.getElementById('reading-loading').style.display = 'block';
+    document.getElementById('step-verify').classList.add('active');
+    try {
+      await handlePaymentReturn(chartHash, lang);
+      document.getElementById('reading-loading').style.display = 'none';
+      let pillars = null;
+      try { const s=sessionStorage.getItem('bazi_chart'); if(s) pillars=JSON.parse(s).pillars; } catch(e){}
+      document.getElementById('reading-result').style.display = 'block';
+      document.getElementById('reading-result').innerHTML = `
+        <div class="calc-card" style="padding:2.5rem;text-align:center">
+          <div style="font-size:3rem;margin-bottom:1rem">✅</div>
+          <h2 style="margin-bottom:.75rem">${lang==='zh'?'壁纸解锁成功！':'Wallpaper Unlocked!'}</h2>
+          <p style="color:var(--gray);margin-bottom:1rem">${lang==='zh'?'正在自动下载您的壁纸...':'Auto-downloading your wallpaper...'}</p>
+          <div id="wp-dl-status" style="color:var(--gold);font-size:.9rem;margin-bottom:2rem"></div>
+          <button class="btn btn-gold" onclick="goBack()">${lang==='zh'?'← 返回查看命盘':'← Back to Reading'}</button>
+        </div>`;
+      if (pillars) {
+        await autoDownloadWallpaperAfterPayment(pillars, wpElement, lang);
+        const dlEl=document.getElementById('wp-dl-status');
+        if(dlEl) dlEl.textContent=lang==='zh'?'✅ 壁纸已开始下载，请查看浏览器下载区。':'✅ Download started. Check your browser downloads.';
+      }
+    } catch(err) {
+      showError(lang==='zh'?'支付验证失败：'+err.message:'Verification failed: '+err.message);
+    }
+  })();
+} else {
+
+// ── 命盘解读主流程 ────────────────────────────────────
 (async function main() {
   if (!chartHash) { showError(lang==='zh' ? '缺少命盘参数，请返回计算器重新操作。' : 'Missing chart parameter. Please return to the calculator.'); return; }
 
@@ -524,6 +622,10 @@ function wrapCanvasText(ctx, text, maxWidth) {
   ['unlock','order_id'].forEach(k => cleanURL.searchParams.delete(k));
   window.history.replaceState({}, '', cleanURL.toString());
 })();
+
+} // end else
+
+} // end else (非壁纸回调)
 </script>
 </body>
 </html>
