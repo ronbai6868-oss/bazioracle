@@ -138,25 +138,60 @@ async function requestAnalysis(pillars, balance, missing, weak, strong, lang, ch
   return data.analysis;
 }
 
+/* ── Markdown → HTML 转换 ─────────────────────────── */
+function mdToHtml(text) {
+  return text
+    // ### 标题
+    .replace(/^###\s+(.+)$/gm, '<h4 class="md-h3">$1</h4>')
+    .replace(/^##\s+(.+)$/gm,  '<h4 class="md-h2">$1</h4>')
+    .replace(/^#\s+(.+)$/gm,   '<h4 class="md-h1">$1</h4>')
+    // **粗体**（行内）
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    // *斜体*
+    .replace(/\*([^*]+)\*(?!\*)/g, '<em>$1</em>')
+    // - 列表项
+    .replace(/^[\-\*]\s+(.+)$/gm, '<li>$1</li>')
+    // 1. 2. 编号列表
+    .replace(/^\d+\.\s+(.+)$/gm, '<li>$1</li>')
+    // 包裹连续 li
+    .replace(/(<li>.*<\/li>\n?)+/g, m => '<ul>' + m + '</ul>')
+    // 空行变段落分隔
+    .replace(/\n{2,}/g, '</p><p>')
+    // 单换行
+    .replace(/\n/g, '<br>');
+}
+
 /* ── 渲染AI解读（收起/展开）──────────────────────── */
 function renderAnalysis(analysisText, lang) {
   const el = document.getElementById('ai-analysis-section');
   if (!el) return;
+
+  // 按 ### 标题分段
   let sections = [], currentTitle = '', currentLines = [];
   analysisText.split('\n').forEach(line => {
-    const m = line.match(/^\*\*(.+?)\*\*\s*$/);
-    if (m) {
-      if (currentTitle || currentLines.length) sections.push({ title: currentTitle, body: currentLines.join('\n').trim() });
-      currentTitle = m[1]; currentLines = [];
-    } else if (line.trim()) { currentLines.push(line.trim()); }
+    const h3 = line.match(/^###\s+(.+)/);
+    const h2 = line.match(/^##\s+(.+)/);
+    const boldLine = line.match(/^\*\*(.+?)\*\*\s*$/);
+    const titleMatch = h3 || h2 || boldLine;
+    if (titleMatch) {
+      if (currentTitle || currentLines.length)
+        sections.push({ title: currentTitle, body: currentLines.join('\n').trim() });
+      currentTitle = (h3 || h2) ? titleMatch[1] : boldLine[1];
+      currentLines = [];
+    } else {
+      currentLines.push(line);
+    }
   });
-  if (currentTitle || currentLines.length) sections.push({ title: currentTitle, body: currentLines.join('\n').trim() });
+  if (currentTitle || currentLines.length)
+    sections.push({ title: currentTitle, body: currentLines.join('\n').trim() });
 
-  const sectionsHtml = sections.map((s, i) => `
-    <div class="ai-section${i >= 2 ? ' ai-section-collapsed' : ''}">
+  const sectionsHtml = sections.map((s, i) => {
+    const bodyHtml = s.body ? '<p>' + mdToHtml(s.body) + '</p>' : '';
+    return `<div class="ai-section${i >= 2 ? ' ai-section-collapsed' : ''}">
       ${s.title ? `<h4>${s.title}</h4>` : ''}
-      ${s.body  ? `<p>${s.body.replace(/\n/g,'<br>')}</p>` : ''}
-    </div>`).join('');
+      ${bodyHtml}
+    </div>`;
+  }).join('');
 
   el.style.display = 'block';
   el.innerHTML = `
