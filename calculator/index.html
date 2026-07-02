@@ -315,7 +315,18 @@ function doCalculate() {
 
   const data = calculateFourPillars(y,m,d,h);
   const chartHash = getChartHash(data.pillars);
-  window._currentChart = { ...data, chartHash };
+  window._currentChart  = { ...data, chartHash };
+  window._currentBirth  = { y, m, d, h };  // ★ 保存生日供支付接口使用
+
+  // ★ 检查 localStorage 是否有缓存的 AI 解读（相同生日永久有效）
+  const cached   = loadAnalysis(chartHash);
+  const cachedChart = (() => { try { return JSON.parse(localStorage.getItem('bazi_chart_' + chartHash)||''); } catch{ return null; } })();
+  if (cached && cachedChart) {
+    // 直接跳转到结果页展示缓存
+    const readingUrl = '/reading/?hash=' + encodeURIComponent(chartHash) + '&lang=' + getLang();
+    window.location.href = readingUrl;
+    return;
+  }
 
   // ★ 切换命盘时清空旧的解锁内容，避免残留
   document.getElementById('unlock-success').style.display    = 'none';
