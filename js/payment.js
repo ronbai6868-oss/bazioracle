@@ -89,8 +89,11 @@ function startPayment(chartHash, lang, productType = 'reading', element = null) 
 }
 
 /* ── 验证支付（供结果页调用）────────────────────── */
-async function handlePaymentReturn(chartHash, lang) {
-  for (let attempt = 1; attempt <= 8; attempt++) {
+async function handlePaymentReturn(chartHash, lang, onProgress) {
+  const maxAttempts = 8;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    // 进度回调：让调用方能更新UI
+    if (onProgress) onProgress(attempt, maxAttempts);
     try {
       const res  = await fetch('/api/verify-order', {
         method:  'POST',
@@ -100,19 +103,22 @@ async function handlePaymentReturn(chartHash, lang) {
       const data = await res.json();
       if (res.ok && data.token) {
         saveToken(data.token);
-        return data;  // 返回完整 data，含 birthData
+        return data;
       }
-      if (res.status === 402 && attempt < 8) {
-        console.log(`Attempt ${attempt}: waiting ${attempt * 2}s...`);
-        await sleep(attempt * 2000);
+      if (res.status === 402 && attempt < maxAttempts) {
+        const waitSec = attempt * 2;
+        console.log(`Attempt ${attempt}/${maxAttempts}: waiting ${waitSec}s...`);
+        await sleep(waitSec * 1000);
         continue;
       }
-      throw new Error(data.error || 'Verification failed');
+      // 402 且已达最大次数，或其他错误
+      throw new Error(data.error || 'Payment not confirmed');
     } catch (err) {
-      if (attempt === 8) throw err;
+      if (attempt === maxAttempts) throw err;
       await sleep(2000);
     }
   }
+  throw new Error('Could not verify payment after multiple attempts');
 }
 
 /* ── 调用 AI 解读 ────────────────────────────────── */
