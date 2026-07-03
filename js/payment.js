@@ -140,25 +140,45 @@ async function requestAnalysis(pillars, balance, missing, weak, strong, lang, ch
 
 /* ── Markdown → HTML 转换 ─────────────────────────── */
 function mdToHtml(text) {
+  if (!text) return '';
+  // 按行处理，避免混乱的正则嵌套
+  const lines = text.split('\n');
+  const out   = [];
+  let inUl    = false;
+
+  lines.forEach(line => {
+    // ### 标题行
+    const h3 = line.match(/^###\s+(.+)/);
+    const h2 = line.match(/^##\s+(.+)/);
+    if (h3 || h2) {
+      if (inUl) { out.push('</ul>'); inUl = false; }
+      const txt = h3 ? h3[1] : h2[1];
+      out.push('<h4 class="md-h3">' + fmtInline(txt) + '</h4>');
+      return;
+    }
+    // 列表项
+    const li = line.match(/^[-*]\s+(.+)/) || line.match(/^\d+\.\s+(.+)/);
+    if (li) {
+      if (!inUl) { out.push('<ul>'); inUl = true; }
+      out.push('<li>' + fmtInline(li[1]) + '</li>');
+      return;
+    }
+    // 关闭列表
+    if (inUl) { out.push('</ul>'); inUl = false; }
+    // 空行
+    if (!line.trim()) { out.push('<br>'); return; }
+    // 普通段落行
+    out.push(fmtInline(line) + '<br>');
+  });
+
+  if (inUl) out.push('</ul>');
+  return out.join('\n');
+}
+
+function fmtInline(text) {
   return text
-    // ### 标题
-    .replace(/^###\s+(.+)$/gm, '<h4 class="md-h3">$1</h4>')
-    .replace(/^##\s+(.+)$/gm,  '<h4 class="md-h2">$1</h4>')
-    .replace(/^#\s+(.+)$/gm,   '<h4 class="md-h1">$1</h4>')
-    // **粗体**（行内）
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    // *斜体*
-    .replace(/\*([^*]+)\*(?!\*)/g, '<em>$1</em>')
-    // - 列表项
-    .replace(/^[\-\*]\s+(.+)$/gm, '<li>$1</li>')
-    // 1. 2. 编号列表
-    .replace(/^\d+\.\s+(.+)$/gm, '<li>$1</li>')
-    // 包裹连续 li
-    .replace(/(<li>.*<\/li>\n?)+/g, m => '<ul>' + m + '</ul>')
-    // 空行变段落分隔
-    .replace(/\n{2,}/g, '</p><p>')
-    // 单换行
-    .replace(/\n/g, '<br>');
+    .replace(/\*([^*\n]+)\*(?!\*)/g, '<em>$1</em>');
 }
 
 /* ── 渲染AI解读（收起/展开）──────────────────────── */
@@ -186,7 +206,7 @@ function renderAnalysis(analysisText, lang) {
     sections.push({ title: currentTitle, body: currentLines.join('\n').trim() });
 
   const sectionsHtml = sections.map((s, i) => {
-    const bodyHtml = s.body ? '<p>' + mdToHtml(s.body) + '</p>' : '';
+    const bodyHtml = s.body ? '<div class="ai-body">' + mdToHtml(s.body) + '</div>' : '';
     return `<div class="ai-section${i >= 2 ? ' ai-section-collapsed' : ''}">
       ${s.title ? `<h4>${s.title}</h4>` : ''}
       ${bodyHtml}
