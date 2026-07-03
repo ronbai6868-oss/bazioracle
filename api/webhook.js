@@ -54,6 +54,8 @@ export default async function handler(req, res) {
     const orderId   = String(event.data?.id ?? '');
     const chartHash = customData?.chart_hash;
     const lang      = customData?.lang || 'en';
+    // ★ 读取 birthData（create-checkout 存入的生日数据，供结果页恢复命盘用）
+    const birthData = customData?.birth_data || null;
 
     if (!orderId || !chartHash) {
       console.error('Webhook: missing orderId or chartHash', { orderId, chartHash });
@@ -69,7 +71,8 @@ export default async function handler(req, res) {
     }
 
     const kvKey  = `paid:${chartHash}`;
-    const kvVal  = JSON.stringify({ orderId, chartHash, lang, paidAt: Date.now() });
+    // ★ 把 birthData 也存入 KV，供 verify-order 返回给结果页
+    const kvVal  = JSON.stringify({ orderId, chartHash, lang, birthData, paidAt: Date.now() });
     const setRes = await fetch(`${kvUrl}/set/${encodeURIComponent(kvKey)}`, {
       method:  'POST',
       headers: { Authorization: `Bearer ${kvToken}`, 'Content-Type': 'application/json' },
