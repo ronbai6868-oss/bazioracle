@@ -737,13 +737,16 @@ if (isPending && params.get('type') === 'wallpaper' && wpElement) {
 
   stepDone('step-chart');
 
-  // 渲染命盘部分
+  // 渲染命盘各区块
   renderReadingHeader(chartData);
   renderBalance(chartData);
   renderDayMaster(chartData);
   renderMissing(chartData);
+  // 隐藏 loading，显示结果区
   document.getElementById('reading-loading').style.display = 'none';
   document.getElementById('reading-result').style.display  = 'block';
+  // 显示支付成功提示
+  showUnlockSuccess(lang);
 
   // ── Step 3: AI 解读 ──
   stepActive('step-ai');
