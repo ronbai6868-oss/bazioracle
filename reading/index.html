@@ -508,7 +508,7 @@ window._downloadPDF = function() {
 
   // 下载
   const link = document.createElement('a');
-  link.download = lang==='zh' ? \`八字解读_\${dm.stem}\${dm.branch}.png\` : \`BaZi_Reading_\${dm.stem}\${dm.branch}.png\`;
+  link.download = lang==='zh' ? `八字解读_${dm.stem}${dm.branch}.png` : `BaZi_Reading_${dm.stem}${dm.branch}.png`;
   link.href = canvas.toDataURL('image/png', 1.0);
   link.click();
 };
