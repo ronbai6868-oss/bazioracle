@@ -5,6 +5,8 @@
 <style id="ls">.zh{display:none!important}</style>
 <script>(function(){var z=new URLSearchParams(location.search).get('lang')==='zh';document.documentElement.lang=z?'zh-CN':'en';if(z){document.getElementById('ls').textContent='.en{display:none!important}';}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="shortcut icon" href="/favicon.svg">
 <title>Your BaZi Reading | BaZi Oracle</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -554,7 +556,14 @@ if (isPending && params.get('type') === 'wallpaper' && wpElement) {
     stepActive('step-verify');
     try {
       // chartHash 已含 _wp_element 后缀，KV key 与 webhook 存的一致
-      await handlePaymentReturn(chartHash, lang);
+      await handlePaymentReturn(chartHash, lang, (attempt, max) => {
+        const el = document.getElementById('step-verify');
+        if (el) {
+          const pct = Math.round(attempt/max*100);
+          el.querySelector('span.en') && (el.querySelector('span.en').textContent = `Verifying… ${pct}%`);
+          el.querySelector('span.zh') && (el.querySelector('span.zh').textContent = `验证中… ${pct}%`);
+        }
+      });
       stepDone('step-verify');
       document.getElementById('reading-loading').style.display = 'none';
 
@@ -615,7 +624,11 @@ if (isPending && params.get('type') === 'wallpaper' && wpElement) {
 
     } catch(err) {
       console.error('WP payment error:', err);
-      showError(lang==='zh'?'支付验证失败：'+err.message:'Verification failed: '+err.message);
+      document.getElementById('reading-loading').style.display = 'none';
+      document.getElementById('reading-error').style.display = 'block';
+      document.getElementById('error-msg').innerHTML = lang==='zh'
+        ? '支付验证超时。请等待1分钟后返回计算器，重新输入相同生日即可恢复。<br>Hash: <code>' + chartHash + '</code>'
+        : 'Verification timed out. Wait 1 minute, then re-enter your birth details on the calculator page.<br>Hash: <code>' + chartHash + '</code>';
     }
   })();
 } else {
@@ -653,12 +666,28 @@ if (isPending && params.get('type') === 'wallpaper' && wpElement) {
   stepActive('step-verify');
   let verifyResult;
   try {
-    verifyResult = await handlePaymentReturn(chartHash, lang);
+    verifyResult = await handlePaymentReturn(chartHash, lang, (attempt, max) => {
+      const el = document.getElementById('step-verify');
+      if (el) {
+        const pct = Math.round(attempt/max*100);
+        const secLeft = Math.max(0, (max-attempt)*2);
+        el.querySelector('span.en') && (el.querySelector('span.en').textContent =
+          attempt < max ? `Verifying payment… (${pct}%, ~${secLeft}s left)` : 'Verifying payment…');
+        el.querySelector('span.zh') && (el.querySelector('span.zh').textContent =
+          attempt < max ? `验证支付中… (${pct}%，约${secLeft}秒)` : '验证支付中…');
+      }
+    });
     stepDone('step-verify');
   } catch (err) {
-    showError(lang==='zh'
-      ? '支付验证失败，请联系客服。错误：' + err.message
-      : 'Payment verification failed. Please contact support. Error: ' + err.message);
+    console.error('verify error:', err);
+    document.getElementById('reading-loading').style.display = 'none';
+    document.getElementById('reading-error').style.display   = 'block';
+    const isDelay = err.message.includes('not found') || err.message.includes('NOT_FOUND') || err.message.includes('not confirmed') || err.message.includes('multiple');
+    document.getElementById('error-msg').innerHTML = isDelay
+      ? (lang==='zh'
+          ? '⏳ 支付验证超时（Webhook 可能延迟）。<br><br>请等待约 1 分钟后，返回计算器页面<b>重新输入相同生日</b>，系统将自动恢复您的解读。<br><br>仍有问题请联系客服，Hash：<code style="font-size:.85rem;opacity:.7;background:rgba(255,255,255,.1);padding:.1rem .4rem;border-radius:4px">' + chartHash + '</code>'
+          : '⏳ Verification timed out (webhook may be delayed).<br><br>Please wait ~1 min, then <b>re-enter your birth details</b> on the calculator to restore your reading.<br><br>Still stuck? Contact support with hash: <code style="font-size:.85rem;opacity:.7;background:rgba(255,255,255,.1);padding:.1rem .4rem;border-radius:4px">' + chartHash + '</code>')
+      : (lang==='zh' ? '验证失败：' + err.message : 'Verification failed: ' + err.message);
     return;
   }
 
