@@ -132,6 +132,13 @@
   display: block; color: var(--gold); font-weight: 700;
   font-size: .95rem; margin: .75rem 0 .4rem;
 }
+.ai-body { color: rgba(255,255,255,1); font-size: .95rem; line-height: 2; }
+.ai-body br { display: block; content: ''; margin-bottom: .2rem; }
+.ai-body strong { color: var(--gold); font-weight: 600; }
+.ai-body em     { color: rgba(255,255,255,.85); font-style: italic; }
+.ai-body ul     { padding-left: 1.25rem; margin: .4rem 0; }
+.ai-body li     { color: rgba(255,255,255,1); line-height: 1.9; margin-bottom: .3rem; }
+.ai-body .md-h3 { display:block;color:var(--gold);font-weight:700;font-size:.95rem;margin:.6rem 0 .3rem; }
 .ai-section-collapsed { display: none; }
 .ai-toggle-wrap { text-align: center; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,.08); }
 .btn-ai-toggle {
@@ -316,159 +323,215 @@ function renderReadingHeader(data) {
     </div>`).join('');
 }
 
-// ── PDF 下载 ──────────────────────────────────────────
+// ── PDF 下载（重新设计排版，A4竖版，清晰分区）──
 window._downloadPDF = function() {
   const chart = window._currentChart;
   if (!chart) return;
-  const W = 794*2, H = 1123*2;
+
+  // A4 @2x = 1587 × 2245
+  const W = 1587, H = 2245;
   const canvas = document.createElement('canvas');
   canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = true;
 
-  // 背景
+  // ── 背景渐变 ──
   const bg = ctx.createLinearGradient(0, 0, 0, H);
   bg.addColorStop(0,   '#0D1B2A');
-  bg.addColorStop(0.3, '#1A2F3F');
+  bg.addColorStop(0.5, '#152233');
   bg.addColorStop(1,   '#0D1B2A');
   ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
 
-  // 金色装饰线
-  ctx.strokeStyle = '#C9A84C'; ctx.lineWidth = 3;
-  ctx.beginPath(); ctx.moveTo(80,120); ctx.lineTo(W-80,120); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(80,128); ctx.lineTo(W-80,128); ctx.stroke();
+  // ── 顶部金色双线 ──
+  ctx.strokeStyle = '#C9A84C'; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.moveTo(60, 70); ctx.lineTo(W-60, 70); ctx.stroke();
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(60, 76); ctx.lineTo(W-60, 76); ctx.stroke();
 
-  // 标题
-  ctx.fillStyle = '#C9A84C'; ctx.font = `bold 52px serif`; ctx.textAlign = 'center';
-  ctx.fillText(lang==='zh' ? '☯ 八字命盘深度解读报告' : '☯ BaZi Four Pillars Reading Report', W/2, 200);
+  // ── Logo + 标题 ──
+  ctx.fillStyle = '#C9A84C';
+  ctx.font = 'bold 44px serif'; ctx.textAlign = 'center';
+  ctx.fillText(lang==='zh' ? '☯ 八字命盘深度解读报告' : '☯ BaZi Four Pillars Reading Report', W/2, 130);
 
-  // 日主 & 日期
   const dm = chart.pillars.day;
-  ctx.fillStyle = 'rgba(255,255,255,.65)'; ctx.font = `32px sans-serif`;
+  ctx.fillStyle = 'rgba(255,255,255,.6)'; ctx.font = '26px sans-serif';
   ctx.fillText(lang==='zh'
     ? `日主：${dm.stem}${dm.branch}  ·  生成时间：${new Date().toLocaleDateString('zh-CN')}`
     : `Day Master: ${dm.stem}${dm.branch}  ·  ${new Date().toLocaleDateString('en-US')}`,
-    W/2, 260);
+    W/2, 168);
 
-  // 四柱
+  // ── 四柱区（背景块）──
+  ctx.fillStyle = 'rgba(201,168,76,.06)';
+  roundRect(ctx, 60, 188, W-120, 160, 12); ctx.fill();
+  ctx.strokeStyle = 'rgba(201,168,76,.2)'; ctx.lineWidth = 1;
+  roundRect(ctx, 60, 188, W-120, 160, 12); ctx.stroke();
+
   const pkeys   = ['year','month','day','hour'];
-  const plabels = lang==='zh' ? ['年柱','月柱','日柱（日主）','时柱'] : ['Year','Month','Day (Master)','Hour'];
-  pkeys.forEach((k,i) => {
-    const p = chart.pillars[k];
-    const x = 200 + i * 350;
-    ctx.fillStyle = '#C9A84C'; ctx.font = `26px sans-serif`; ctx.textAlign = 'center';
-    ctx.fillText(plabels[i], x, 340);
-    ctx.fillStyle = '#fff';    ctx.font = `bold 64px serif`;
-    ctx.fillText(p.stem + p.branch, x, 420);
+  const plabels = lang==='zh' ? ['年柱','月柱','日柱（日主）','时柱'] : ['Year','Month','Day Master','Hour'];
+  pkeys.forEach((k, i) => {
+    const p  = chart.pillars[k];
+    const x  = 160 + i * 320;
+    ctx.fillStyle = 'rgba(201,168,76,.7)'; ctx.font = '22px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(plabels[i], x, 224);
+    ctx.fillStyle = i===2 ? '#C9A84C' : '#fff'; ctx.font = 'bold 60px serif';
+    ctx.fillText(p.stem + p.branch, x, 308);
   });
 
-  // 分割线
-  ctx.strokeStyle = 'rgba(201,168,76,.3)'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(80,460); ctx.lineTo(W-80,460); ctx.stroke();
-
-  // ── 五行雷达图（Canvas绘制）──
-  {
-    const EL_ORDER = ['Wood','Fire','Earth','Metal','Water'];
-    const EL_COL   = {Wood:'#3D6B47',Fire:'#c0392b',Earth:'#B8892B',Metal:'#6B7A8D',Water:'#2C5282'};
-    const EL_NAME  = lang==='zh'
-      ? {Wood:'木',Fire:'火',Earth:'土',Metal:'金',Water:'水'}
-      : {Wood:'Wood',Fire:'Fire',Earth:'Earth',Metal:'Metal',Water:'Water'};
-    const cx2=W/2, cy2=580, R2=130;
-    const maxV = chart.total || 8;
-    const angles2 = EL_ORDER.map((_,i) => -Math.PI/2 + i*2*Math.PI/5);
-    const pts2 = r => angles2.map(a => [cx2+r*Math.cos(a), cy2+r*Math.sin(a)]);
-    // 网格
-    [0.25,0.5,0.75,1].forEach(f => {
-      const gp = pts2(R2*f);
-      ctx.strokeStyle='rgba(201,168,76,.15)'; ctx.lineWidth=1; ctx.beginPath();
-      gp.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])); ctx.closePath(); ctx.stroke();
-    });
-    // 轴线
-    pts2(R2).forEach(p=>{ctx.strokeStyle='rgba(201,168,76,.1)';ctx.beginPath();ctx.moveTo(cx2,cy2);ctx.lineTo(p[0],p[1]);ctx.stroke();});
-    // 数据多边形
-    const dataR2 = EL_ORDER.map(el=>Math.max(R2*0.15, R2*(chart.balance[el]||0)/maxV));
-    const dp2 = angles2.map((a,i)=>[cx2+dataR2[i]*Math.cos(a),cy2+dataR2[i]*Math.sin(a)]);
-    ctx.fillStyle='rgba(201,168,76,.15)'; ctx.strokeStyle='rgba(201,168,76,.7)'; ctx.lineWidth=2;
-    ctx.beginPath(); dp2.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])); ctx.closePath(); ctx.fill(); ctx.stroke();
-    // 顶点
-    dp2.forEach(p=>{ctx.fillStyle='#C9A84C';ctx.beginPath();ctx.arc(p[0],p[1],5,0,Math.PI*2);ctx.fill();});
-    // 标签
-    EL_ORDER.forEach((el,i)=>{
-      const lx=cx2+(R2+40)*Math.cos(angles2[i]);
-      const ly=cy2+(R2+40)*Math.sin(angles2[i]);
-      const pct=Math.round((chart.balance[el]||0)/maxV*100);
-      ctx.fillStyle=EL_COL[el]; ctx.font='bold 22px serif'; ctx.textAlign='center';
-      ctx.fillText(EL_NAME[el], lx, ly-8);
-      ctx.fillStyle='rgba(255,255,255,.5)'; ctx.font='18px sans-serif';
-      ctx.fillText(pct+'%', lx, ly+14);
-    });
-    // 标题
-    ctx.fillStyle='rgba(201,168,76,.8)'; ctx.font='bold 24px sans-serif'; ctx.textAlign='center';
-    ctx.fillText(lang==='zh'?'五行平衡':'Elemental Balance', cx2, cy2-R2-60);
+  // ── 分割线 ──
+  function divider(y) {
+    ctx.strokeStyle = 'rgba(201,168,76,.25)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(60, y); ctx.lineTo(W-60, y); ctx.stroke();
   }
+  divider(368);
 
-  // ── 缺失/薄弱五行 ──
-  {
-    const missing = chart.missing || [];
-    const weak    = chart.weak    || [];
-    if (missing.length || weak.length) {
-      const y0 = 740;
-      ctx.fillStyle='rgba(168,50,50,.8)'; ctx.font='bold 24px sans-serif'; ctx.textAlign='left';
-      ctx.fillText(lang==='zh'?'需要加强的五行：':'Elements to Strengthen:', 80, y0);
-      const EL_EMOJ={Wood:'🌿',Fire:'🔥',Earth:'⛰',Metal:'⚔',Water:'🌊'};
-      const EL_N=lang==='zh'?{Wood:'木',Fire:'火',Earth:'土',Metal:'金',Water:'水'}:{Wood:'Wood',Fire:'Fire',Earth:'Earth',Metal:'Metal',Water:'Water'};
-      let tx=80;
-      [...missing,...weak.filter(w=>!missing.includes(w))].forEach(el=>{
-        ctx.fillStyle='rgba(168,50,50,.9)'; ctx.font='20px sans-serif';
-        const label=EL_EMOJ[el]+' '+EL_N[el]+(missing.includes(el)?(lang==='zh'?' (缺)':' (Missing)'):(lang==='zh'?' (弱)':' (Weak)'));
-        ctx.fillText(label, tx, y0+32); tx+=200;
-      });
+  // ── 五行雷达图区（左）+ 缺失五行（右）──
+  const radarCx = 280, radarCy = 560, radarR = 160;
+  const EL_ORDER = ['Wood','Fire','Earth','Metal','Water'];
+  const EL_COL   = {Wood:'#4a9b5f',Fire:'#e05c3a',Earth:'#c8982a',Metal:'#7a8fa0',Water:'#3a7abf'};
+  const EL_NAME  = lang==='zh'
+    ? {Wood:'木',Fire:'火',Earth:'土',Metal:'金',Water:'水'}
+    : {Wood:'Wood',Fire:'Fire',Earth:'Earth',Metal:'Metal',Water:'Water'};
+  const EL_EMOJI = {Wood:'🌿',Fire:'🔥',Earth:'⛰',Metal:'⚔',Water:'🌊'};
+  const maxV     = chart.total || 8;
+  const angles2  = EL_ORDER.map((_,i) => -Math.PI/2 + i*2*Math.PI/5);
+
+  // 网格
+  [0.25, 0.5, 0.75, 1].forEach(f => {
+    const gp = angles2.map(a => [radarCx+radarR*f*Math.cos(a), radarCy+radarR*f*Math.sin(a)]);
+    ctx.strokeStyle = 'rgba(201,168,76,.12)'; ctx.lineWidth = 1; ctx.beginPath();
+    gp.forEach((p,i) => i ? ctx.lineTo(p[0],p[1]) : ctx.moveTo(p[0],p[1]));
+    ctx.closePath(); ctx.stroke();
+  });
+  angles2.forEach(a => {
+    ctx.strokeStyle='rgba(201,168,76,.08)'; ctx.lineWidth=1; ctx.beginPath();
+    ctx.moveTo(radarCx,radarCy);
+    ctx.lineTo(radarCx+radarR*Math.cos(a), radarCy+radarR*Math.sin(a)); ctx.stroke();
+  });
+
+  // 数据面
+  const dataR2 = EL_ORDER.map(el => Math.max(radarR*0.12, radarR*(chart.balance[el]||0)/maxV));
+  const dp2    = angles2.map((a,i) => [radarCx+dataR2[i]*Math.cos(a), radarCy+dataR2[i]*Math.sin(a)]);
+  ctx.fillStyle='rgba(201,168,76,.15)'; ctx.strokeStyle='rgba(201,168,76,.75)'; ctx.lineWidth=2;
+  ctx.beginPath(); dp2.forEach((p,i) => i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  dp2.forEach(p => { ctx.fillStyle='#C9A84C'; ctx.beginPath(); ctx.arc(p[0],p[1],5,0,Math.PI*2); ctx.fill(); });
+
+  // 标签
+  EL_ORDER.forEach((el, i) => {
+    const lx = radarCx + (radarR+38)*Math.cos(angles2[i]);
+    const ly  = radarCy + (radarR+38)*Math.sin(angles2[i]);
+    const pct = Math.round((chart.balance[el]||0)/maxV*100);
+    ctx.fillStyle = EL_COL[el]; ctx.font = 'bold 22px serif'; ctx.textAlign = 'center';
+    ctx.fillText(EL_NAME[el], lx, ly-8);
+    ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.font = '18px sans-serif';
+    ctx.fillText(pct+'%', lx, ly+14);
+  });
+
+  // 雷达图标题
+  ctx.fillStyle='rgba(201,168,76,.7)'; ctx.font='bold 22px sans-serif'; ctx.textAlign='center';
+  ctx.fillText(lang==='zh'?'五行平衡':'Elemental Balance', radarCx, 382);
+
+  // ── 右侧：缺失/薄弱五行 ──
+  const rx = 580, ry = 400;
+  ctx.fillStyle = 'rgba(201,168,76,.8)'; ctx.font = 'bold 24px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText(lang==='zh'?'五行分布':'Element Distribution', rx, ry);
+
+  EL_ORDER.forEach((el, i) => {
+    const cnt = chart.balance[el] || 0;
+    const pct = Math.round(cnt/maxV*100);
+    const y0  = ry + 40 + i * 64;
+    // 名称
+    ctx.fillStyle = EL_COL[el]; ctx.font = 'bold 22px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText(EL_EMOJI[el] + ' ' + EL_NAME[el], rx, y0+20);
+    // 条形背景
+    ctx.fillStyle = 'rgba(255,255,255,.07)';
+    roundRect(ctx, rx+160, y0+4, 620, 24, 12); ctx.fill();
+    // 条形填充
+    if (pct > 0) {
+      ctx.fillStyle = EL_COL[el];
+      roundRect(ctx, rx+160, y0+4, Math.max(24, 620*pct/100), 24, 12); ctx.fill();
     }
-  }
+    // 百分比
+    ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.font = '20px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText(pct+'%', rx+794, y0+22);
 
-  const aiStartY = (chart.missing?.length||chart.weak?.length) ? 820 : 760;
-
-  // 分割线2
-  ctx.strokeStyle = 'rgba(201,168,76,.3)'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(80, aiStartY-20); ctx.lineTo(W-80, aiStartY-20); ctx.stroke();
-
-  // AI 内容（重用 aiStartY）
-  let _pdfAiY = aiStartY;
-  const sections = document.querySelectorAll('#ai-sections-wrap .ai-section');
-  ctx.textAlign = 'left'; ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.font = `28px sans-serif`;
-  let y = 500;
-  sections.forEach(s => {
-    if (y > H - 160) return;
-    const h4 = s.querySelector('h4');
-    const p  = s.querySelector('p');
-    if (h4) {
-      y += 30;
-      ctx.fillStyle = '#C9A84C'; ctx.font = `bold 30px sans-serif`;
-      ctx.fillText(h4.textContent, 100, y); y += 46;
-      ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.font = `28px sans-serif`;
-    }
-    if (p) {
-      const lines = wrapCanvasText(ctx, p.innerText, W - 200);
-      lines.forEach(line => {
-        if (y > H - 160) return;
-        ctx.fillText(line, 100, y); y += 42;
-      });
-      y += 16;
+    // 状态标签
+    const status = cnt===0?(lang==='zh'?'缺失':'Missing'):cnt===1?(lang==='zh'?'薄弱':'Weak'):cnt>=3?(lang==='zh'?'旺盛':'Strong'):'';
+    if (status) {
+      const sc = cnt===0?'#e05c3a':cnt===1?'#c8982a':'#4a9b5f';
+      ctx.fillStyle = sc; ctx.font = '18px sans-serif';
+      ctx.fillText(status, rx+840, y0+22);
     }
   });
 
-  // 底部
+  divider(760);
+
+  // ── AI 解读区 ──
+  ctx.fillStyle = '#C9A84C'; ctx.font = 'bold 28px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText(lang==='zh'?'✦ AI 深度解读':'✦ AI Deep Reading', 60, 800);
+
+  let y = 840;
+  const maxY = H - 100;
+  const allSections = document.querySelectorAll('#ai-sections-wrap .ai-section');
+
+  allSections.forEach(sec => {
+    if (y >= maxY) return;
+    const h4 = sec.querySelector('h4');
+    const body = sec.querySelector('.ai-body');
+
+    if (h4 && h4.textContent.trim()) {
+      y += 20;
+      ctx.fillStyle = '#C9A84C'; ctx.font = 'bold 26px sans-serif'; ctx.textAlign = 'left';
+      wrapAndDraw(ctx, h4.textContent.trim(), 60, y, W-120, 26, '#C9A84C', true);
+      y += 38;
+    }
+    if (body) {
+      const rawText = body.innerText || body.textContent || '';
+      const wrapped = wrapCanvasText(ctx, rawText, W-120, 22);
+      wrapped.forEach(line => {
+        if (y >= maxY) return;
+        if (!line.trim()) { y += 14; return; }
+        ctx.fillStyle = 'rgba(255,255,255,.92)'; ctx.font = '22px sans-serif'; ctx.textAlign = 'left';
+        ctx.fillText(line, 60, y); y += 36;
+      });
+      y += 12;
+    }
+  });
+
+  // ── 底部 ──
   ctx.strokeStyle = '#C9A84C'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(80,H-100); ctx.lineTo(W-80,H-100); ctx.stroke();
-  ctx.fillStyle = 'rgba(201,168,76,.5)'; ctx.font = `24px serif`; ctx.textAlign = 'center';
-  ctx.fillText('☯ BaZi Oracle · getbazioracle.com', W/2, H-55);
+  ctx.beginPath(); ctx.moveTo(60, H-70); ctx.lineTo(W-60, H-70); ctx.stroke();
+  ctx.fillStyle = 'rgba(201,168,76,.5)'; ctx.font = '22px serif'; ctx.textAlign = 'center';
+  ctx.fillText('☯ BaZi Oracle  ·  getbazioracle.com', W/2, H-35);
 
+  // 下载
   const link = document.createElement('a');
-  link.download = lang==='zh' ? `八字解读_${dm.stem}${dm.branch}.png` : `BaZi_Reading_${dm.stem}${dm.branch}.png`;
+  link.download = lang==='zh' ? \`八字解读_\${dm.stem}\${dm.branch}.png\` : \`BaZi_Reading_\${dm.stem}\${dm.branch}.png\`;
   link.href = canvas.toDataURL('image/png', 1.0);
   link.click();
 };
 
-function wrapCanvasText(ctx, text, maxWidth) {
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.lineTo(x+w-r, y); ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+  ctx.lineTo(x+w, y+h-r); ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+  ctx.lineTo(x+r, y+h); ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+  ctx.lineTo(x, y+r); ctx.quadraticCurveTo(x, y, x+r, y);
+  ctx.closePath();
+}
+
+function wrapAndDraw(ctx, text, x, y, maxW, size, color, bold) {
+  ctx.fillStyle = color;
+  ctx.font = (bold?'bold ':'')+size+'px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText(text, x, y);
+}
+
+
+
+function wrapCanvasText(ctx, text, maxWidth, fontSize) {
+  if (fontSize) ctx.font = fontSize + 'px sans-serif';
   const result = [];
   (text || '').split('\n').forEach(line => {
     if (!line.trim()) { result.push(''); return; }
@@ -484,30 +547,74 @@ function wrapCanvasText(ctx, text, maxWidth) {
 
 // ── 壁纸支付回调：自动下载 ──
 const wpElement = params.get('element');
+const origHash  = params.get('origHash') || chartHash.replace(/_wp_.*$/, '');
 if (isPending && params.get('type') === 'wallpaper' && wpElement) {
   (async function() {
     document.getElementById('reading-loading').style.display = 'block';
-    document.getElementById('step-verify').classList.add('active');
+    stepActive('step-verify');
     try {
+      // chartHash 已含 _wp_element 后缀，KV key 与 webhook 存的一致
       await handlePaymentReturn(chartHash, lang);
+      stepDone('step-verify');
       document.getElementById('reading-loading').style.display = 'none';
+
+      // 恢复命盘数据：优先 sessionStorage，其次 localStorage（用 origHash 查）
       let pillars = null;
-      try { const s=sessionStorage.getItem('bazi_chart'); if(s) pillars=JSON.parse(s).pillars; } catch(e){}
+      try {
+        const ss = sessionStorage.getItem('bazi_chart');
+        if (ss) { pillars = JSON.parse(ss).pillars; }
+      } catch(e) {}
+      if (!pillars) {
+        try {
+          const ls = localStorage.getItem('bazi_chart_' + origHash);
+          if (ls) { pillars = JSON.parse(ls).pillars; }
+        } catch(e) {}
+      }
+
       document.getElementById('reading-result').style.display = 'block';
       document.getElementById('reading-result').innerHTML = `
-        <div class="calc-card" style="padding:2.5rem;text-align:center">
-          <div style="font-size:3rem;margin-bottom:1rem">✅</div>
-          <h2 style="margin-bottom:.75rem">${lang==='zh'?'壁纸解锁成功！':'Wallpaper Unlocked!'}</h2>
-          <p style="color:var(--gray);margin-bottom:1rem">${lang==='zh'?'正在自动下载您的壁纸...':'Auto-downloading your wallpaper...'}</p>
-          <div id="wp-dl-status" style="color:var(--gold);font-size:.9rem;margin-bottom:2rem"></div>
-          <button class="btn btn-gold" onclick="goBack()">${lang==='zh'?'← 返回查看命盘':'← Back to Reading'}</button>
+        <div class="calc-card" style="padding:2.5rem;text-align:center;max-width:500px;margin:0 auto">
+          <div style="font-size:3.5rem;margin-bottom:1rem">🎉</div>
+          <h2 style="margin-bottom:.75rem;color:var(--gold)">
+            ${lang==='zh'?'壁纸解锁成功！':'Wallpaper Unlocked!'}
+          </h2>
+          <p style="color:var(--gray);margin-bottom:1.5rem;font-size:.95rem">
+            ${lang==='zh'?'正在自动打包并下载您的壁纸...':'Packing and downloading your wallpaper...'}
+          </p>
+          <div id="wp-dl-status" style="color:var(--gold);font-size:.9rem;min-height:1.5rem;margin-bottom:2rem"></div>
+          <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+            <button class="btn btn-gold" onclick="goBack()">
+              ${lang==='zh'?'← 返回查看命盘':'← Back to Reading'}
+            </button>
+            ${pillars ? `<button class="btn" style="border:1px solid var(--gold);color:var(--gold);background:transparent"
+              onclick="autoDownloadWallpaperAfterPayment(window._wpPillars,'${wpElement}','${lang}')">
+              ${lang==='zh'?'重新下载':'Re-download'}
+            </button>` : ''}
+          </div>
         </div>`;
+
       if (pillars) {
-        await autoDownloadWallpaperAfterPayment(pillars, wpElement, lang);
-        const dlEl=document.getElementById('wp-dl-status');
-        if(dlEl) dlEl.textContent=lang==='zh'?'✅ 壁纸已开始下载，请查看浏览器下载区。':'✅ Download started. Check your browser downloads.';
+        window._wpPillars = pillars;
+        const dlEl = document.getElementById('wp-dl-status');
+        if (dlEl) dlEl.innerHTML = `<div class="step-spinner" style="display:inline-block;margin-right:.5rem"></div>${lang==='zh'?'正在生成壁纸...':'Generating wallpaper...'}`;
+        try {
+          await autoDownloadWallpaperAfterPayment(pillars, wpElement, lang);
+          if (dlEl) dlEl.innerHTML = `✅ ${lang==='zh'?'壁纸已开始下载，请查看浏览器下载区。':'Download started — check your browser downloads.'}`;
+        } catch(e) {
+          if (dlEl) dlEl.innerHTML = `⚠ ${lang==='zh'?'下载失败，请点击"重新下载"。':'Download failed, please click Re-download.'}`;
+        }
+      } else {
+        const dlEl = document.getElementById('wp-dl-status');
+        if (dlEl) dlEl.textContent = lang==='zh'?'⚠ 无法恢复命盘数据，请返回计算器重新获取壁纸。':'⚠ Could not restore chart data. Please return to calculator.';
       }
+
+      // 清理 URL
+      const cu = new URL(window.location.href);
+      ['unlock','order_id','type','element','origHash'].forEach(k => cu.searchParams.delete(k));
+      window.history.replaceState({}, '', cu.toString());
+
     } catch(err) {
+      console.error('WP payment error:', err);
       showError(lang==='zh'?'支付验证失败：'+err.message:'Verification failed: '+err.message);
     }
   })();
