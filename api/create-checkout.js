@@ -32,8 +32,9 @@ export default async function handler(req, res) {
 
     // ★ 完整解读：支付完成后跳转到独立结果页 /reading/
     // 壁纸：跳回计算器
+    // ★ 壁纸和完整解读都跳到 /reading/，由结果页统一处理
     const redirectUrl = isWallpaper
-      ? `${siteUrl}/calculator/?unlock=pending&hash=${encodeURIComponent(returnHash)}&lang=${lang || 'en'}&type=wallpaper${element ? `&element=${encodeURIComponent(element)}` : ''}`
+      ? `${siteUrl}/reading/?hash=${encodeURIComponent(returnHash)}&lang=${lang || 'en'}&unlock=pending&type=wallpaper&element=${encodeURIComponent(element || '')}&origHash=${encodeURIComponent(chartHash)}`
       : `${siteUrl}/reading/?hash=${encodeURIComponent(chartHash)}&lang=${lang || 'en'}&unlock=pending`;
 
     const customData = {
