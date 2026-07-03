@@ -408,6 +408,14 @@ html[lang="en"] .zh{display:none!important}
 .ai-section ul { padding-left:1.25rem;margin:.5rem 0; }
 .ai-section strong { color:var(--gold);font-weight:600; }
 .ai-section em    { color:rgba(255,255,255,.85);font-style:italic; }
+/* ai-body 替换 p，确保所有内容正确继承颜色 */
+.ai-body { color:rgba(255,255,255,1);font-size:.95rem;line-height:2; }
+.ai-body br { display:block;content:'';margin-bottom:.2rem; }
+.ai-body strong { color:var(--gold);font-weight:600; }
+.ai-body em     { color:rgba(255,255,255,.85);font-style:italic; }
+.ai-body ul     { padding-left:1.25rem;margin:.4rem 0; }
+.ai-body li     { color:rgba(255,255,255,1);line-height:1.9;margin-bottom:.3rem; }
+.ai-body .md-h3 { display:block;color:var(--gold);font-weight:700;font-size:.95rem;margin:.6rem 0 .3rem; }
 /* 收起/展开 */
 .ai-section-collapsed { display:none; }
 .ai-toggle-wrap { text-align:center;margin-top:1.5rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,.08); }
