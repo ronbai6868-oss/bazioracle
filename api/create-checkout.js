@@ -1,6 +1,15 @@
-/* /api/create-checkout.js  v5.0
-   支付完成后跳转到独立结果页 /reading/
-*/
+/* ═══════════════════════════════════════════════════
+   /api/create-checkout.js  v6.0  — Paddle
+   
+   替换 Lemon Squeezy，改用 Paddle Billing API
+   支持：完整解读 + 五行壁纸
+   
+   环境变量（在 Vercel 中配置）：
+   PADDLE_API_KEY          = Paddle API Key（以 pdl_ 开头）
+   PADDLE_READING_PRICE_ID = 完整解读的 Price ID（以 pri_ 开头）
+   PADDLE_WALLPAPER_PRICE_ID = 壁纸的 Price ID（以 pri_ 开头）
+   SITE_URL                = https://getbazioracle.com
+═══════════════════════════════════════════════════ */
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', process.env.SITE_URL || '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -12,74 +21,95 @@ export default async function handler(req, res) {
     const { chartHash, lang, productType = 'reading', element, birthData } = req.body;
     if (!chartHash) return res.status(400).json({ error: 'Missing chartHash' });
 
-    const { LS_API_KEY, LS_STORE_ID, LS_READING_VARIANT, LS_WALLPAPER_VARIANT, SITE_URL } = process.env;
-    if (!LS_API_KEY || !LS_STORE_ID) return res.status(500).json({ error: 'Payment service not configured' });
+    const {
+      PADDLE_API_KEY,
+      PADDLE_READING_PRICE_ID,
+      PADDLE_WALLPAPER_PRICE_ID,
+      SITE_URL
+    } = process.env;
+
+    if (!PADDLE_API_KEY) {
+      return res.status(500).json({ error: 'Payment service not configured' });
+    }
 
     const siteUrl     = SITE_URL || 'https://getbazioracle.com';
     const isWallpaper = productType === 'wallpaper';
-    const variantId   = isWallpaper ? LS_WALLPAPER_VARIANT : LS_READING_VARIANT;
-    if (!variantId) return res.status(500).json({ error: isWallpaper ? 'Wallpaper product not configured' : 'Reading product not configured' });
+    const priceId     = isWallpaper ? PADDLE_WALLPAPER_PRICE_ID : PADDLE_READING_PRICE_ID;
 
-    const productName = isWallpaper
-      ? (lang === 'zh' ? `八字壁纸 · ${element}元素` : `BaZi Wallpaper · ${element} Element`)
-      : (lang === 'zh' ? '八字完整命盘深度解读' : 'Full BaZi Reading Unlock');
+    if (!priceId) {
+      return res.status(500).json({
+        error: isWallpaper ? 'Wallpaper product not configured' : 'Reading product not configured'
+      });
+    }
 
-    const productDesc = isWallpaper
-      ? (lang === 'zh' ? `1080×1920 专属${element}元素壁纸` : `1080×1920 personalised ${element} element wallpaper`)
-      : (lang === 'zh' ? 'AI驱动完整八字命盘分析' : 'AI-powered complete BaZi analysis');
-
+    // returnHash：壁纸带 _wp_element 后缀，用于 KV key
     const returnHash = isWallpaper ? `${chartHash}_wp_${element}` : chartHash;
 
-    // ★ 完整解读：支付完成后跳转到独立结果页 /reading/
-    // 壁纸：跳回计算器
-    // ★ 壁纸和完整解读都跳到 /reading/，由结果页统一处理
-    const redirectUrl = isWallpaper
+    // 支付完成后跳转到结果页
+    const successUrl = isWallpaper
       ? `${siteUrl}/reading/?hash=${encodeURIComponent(returnHash)}&lang=${lang || 'en'}&unlock=pending&type=wallpaper&element=${encodeURIComponent(element || '')}&origHash=${encodeURIComponent(chartHash)}`
       : `${siteUrl}/reading/?hash=${encodeURIComponent(chartHash)}&lang=${lang || 'en'}&unlock=pending`;
 
+    // 自定义数据：传给 Webhook，供后端恢复命盘
     const customData = {
-      chart_hash:   String(returnHash),
-      lang:         String(lang || 'en'),
-      product_type: String(productType)
+      chart_hash:   returnHash,
+      lang:         lang || 'en',
+      product_type: productType
     };
-    if (isWallpaper && element) customData.element = String(element);
-    // ★ 把生日数据也存入 custom_data，供结果页恢复命盘用
+    if (isWallpaper && element) customData.element = element;
     if (!isWallpaper && birthData) customData.birth_data = JSON.stringify(birthData);
 
-    const body = {
-      data: {
-        type: 'checkouts',
-        attributes: {
-          checkout_data: { custom: customData },
-          product_options: {
-            name:        productName,
-            description: productDesc,
-            redirect_url: redirectUrl
-          }
-        },
-        relationships: {
-          store:   { data: { type: 'stores',   id: String(LS_STORE_ID)  } },
-          variant: { data: { type: 'variants', id: String(variantId)    } }
+    // ── 调用 Paddle API 创建一次性结账链接 ──────────────
+    // Paddle Billing API v1: POST /transactions
+    // 文档：https://developer.paddle.com/api-reference/transactions/create-transaction
+    const paddleBody = {
+      items: [
+        {
+          price_id: priceId,
+          quantity: 1
         }
-      }
+      ],
+      custom_data: customData,
+      checkout: {
+        url: successUrl   // 支付成功后跳转
+      },
+      // 支付完成后 Paddle 会自动把订单参数附加到 successUrl
+      // 例如：?_ptxn=txn_xxxxxxxx
     };
 
-    const lsRes = await fetch('https://api.lemonsqueezy.com/v1/checkouts', {
-      method: 'POST',
-      headers: { 'Accept': 'application/vnd.api+json', 'Content-Type': 'application/vnd.api+json', 'Authorization': `Bearer ${LS_API_KEY}` },
-      body:   JSON.stringify(body),
+    // Paddle 使用 sandbox（测试）或 production（正式）环境
+    // 测试环境 API：https://sandbox-api.paddle.com
+    // 正式环境 API：https://api.paddle.com
+    const isSandbox   = PADDLE_API_KEY.startsWith('test_');
+    const paddleBase  = isSandbox
+      ? 'https://sandbox-api.paddle.com'
+      : 'https://api.paddle.com';
+
+    const paddleRes = await fetch(`${paddleBase}/transactions`, {
+      method:  'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${PADDLE_API_KEY}`
+      },
+      body:   JSON.stringify(paddleBody),
       signal: AbortSignal.timeout(10000)
     });
 
-    if (!lsRes.ok) {
-      const err = await lsRes.text();
-      console.error('LS checkout error:', lsRes.status, err);
-      return res.status(lsRes.status).json({ error: 'Failed to create checkout', detail: err });
+    if (!paddleRes.ok) {
+      const err = await paddleRes.text();
+      console.error('Paddle transaction error:', paddleRes.status, err);
+      return res.status(paddleRes.status).json({ error: 'Failed to create checkout', detail: err });
     }
 
-    const data        = await lsRes.json();
-    const checkoutUrl = data.data?.attributes?.url;
-    if (!checkoutUrl) return res.status(500).json({ error: 'No checkout URL returned' });
+    const data = await paddleRes.json();
+
+    // Paddle 返回的结账 URL 在 data.data.checkout.url
+    const checkoutUrl = data?.data?.checkout?.url;
+    if (!checkoutUrl) {
+      console.error('No checkout URL in Paddle response:', JSON.stringify(data).slice(0, 300));
+      return res.status(500).json({ error: 'No checkout URL returned from Paddle' });
+    }
+
     return res.status(200).json({ checkoutUrl, productType });
 
   } catch (err) {
