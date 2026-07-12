@@ -6,7 +6,7 @@
 
 // ── 修改这里来配置你的网站 ──────────────────────────
 const STORE_URL  = "https://your-store-link.com"; // ← 替换成你的跨境电商店铺链接
-const STORE_NAME = "BaZi Element Shop";           // ← 你的店铺名称
+const STORE_NAME = "BaZi Oracle";
 const SITE_URL   = "https://getbazioracle.com";   // ← 你购买的域名
 const GA_ID      = "G-N01MENQCSC";               // ← Google Analytics ID（注册后填写）
 // ────────────────────────────────────────────────────
@@ -123,53 +123,3 @@ function getFooterHTML() {
         <!-- <a href="${langHref('/shop/')}"><span class="en">Element Shop</span><span class="zh">五行商品</span></a> 开通店铺后取消注释 -->
       </div>
       <div class="footer-col">
-        <h5><span class="en">Shop</span><span class="zh">商品</span></h5>
-        <span style="font-size:.85rem;color:rgba(255,255,255,.35)"><span class="en">Coming Soon ✦</span><span class="zh">商品即将上线 ✦</span></span>
-        <!-- 开通店铺后取消以下注释：
-        <a href="${langHref('/shop/')}"><span class="en">All Products</span><span class="zh">全部商品</span></a>
-        <a href="${STORE_URL}" target="_blank" rel="noopener"><span class="en">Visit Full Store →</span><span class="zh">访问完整店铺 →</span></a>
-        -->
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span>© ${yr} BaZi Oracle · All rights reserved</span>
-      <div>
-        <a href="${langHref('/about/')}"><span class="en">About</span><span class="zh">关于我们</span></a>
-        <a href="${langHref('/privacy/')}"><span class="en">Privacy</span><span class="zh">隐私政策</span></a>
-      </div>
-    </div>
-  </div>
-</footer>`;
-}
-
-// ── 初始化（每个页面都要调用）──────────────────────────
-function initComponents(activePage) {
-  // 注入导航
-  const navEl = document.getElementById('nav-placeholder');
-  if (navEl) navEl.innerHTML = getNavHTML(activePage);
-  // 注入页脚
-  const footerEl = document.getElementById('footer-placeholder');
-  if (footerEl) footerEl.innerHTML = getFooterHTML();
-  // 应用语言
-  applyLang();
-  // 移动端菜单
-  const toggle = document.getElementById('navToggle');
-  const mobile = document.getElementById('navMobile');
-  if (toggle && mobile) {
-    toggle.addEventListener('click', () => {
-      const open = mobile.classList.toggle('open');
-      toggle.textContent = open ? '✕' : '☰';
-    });
-  }
-  // Newsletter表单
-  document.querySelectorAll('.nl-form').forEach(form => {
-    form.addEventListener('submit', e => {
-      e.preventDefault();
-      const email = form.querySelector('.nl-input').value;
-      if (!email) return;
-      const isZh = getLang() === 'zh';
-      alert(isZh ? '订阅成功！感谢您的关注。' : 'Thank you for subscribing!');
-      form.reset();
-    });
-  });
-}
