@@ -2,18 +2,49 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-  <!-- ★ 语言检测脚本（必须在CSS前运行，防止双语同时显示）-->
-  <style id="ls">.zh{display:none!important}</style>
-  <script>(function(){var z=new URLSearchParams(location.search).get('lang')==='zh';document.documentElement.lang=z?'zh-CN':'en';if(z){document.getElementById('ls').textContent='.en{display:none!important}';}})();</script>
-  <!-- ★ End language detection -->
+<style id="ls">.zh{display:none!important}</style>
+<script>(function(){var z=new URLSearchParams(location.search).get('lang')==='zh';document.documentElement.lang=z?'zh-CN':'en';if(z){document.getElementById('ls').textContent='.en{display:none!important}';}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <title>Learn BaZi — Four Pillars Guides & Articles | BaZi Oracle</title>
-<meta name="description" content="Complete beginner to advanced BaZi guides. Learn about the Four Pillars of Destiny, Five Elements, Day Masters, and how to balance your elemental chart.">
+<meta name="description" content="Complete beginner to advanced BaZi guides. Learn about the Four Pillars, Five Elements, Day Masters, career, love, wealth and more.">
 <link rel="canonical" href="https://getbazioracle.com/learn/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/style.css">
+<style>
+.cat-tabs{display:flex;gap:.6rem;flex-wrap:wrap;margin:1.5rem 0 1rem}
+.cat-tab{padding:.5rem 1.2rem;border-radius:20px;border:1px solid rgba(13,27,42,.12);background:transparent;cursor:pointer;font-size:.88rem;font-family:'DM Sans',sans-serif;color:var(--gray);transition:all .2s}
+.cat-tab:hover,.cat-tab.active{background:var(--ink);color:var(--gold);border-color:var(--ink)}
+.articles-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.25rem;padding-bottom:4rem}
+.article-card{background:var(--white);border:1px solid rgba(13,27,42,.08);border-radius:var(--r2);overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .2s,transform .2s}
+.article-card:hover{box-shadow:var(--sh2);transform:translateY(-2px)}
+.a-thumb{height:76px;display:flex;align-items:center;padding:0 1.25rem;font-size:1.9rem;gap:.75rem}
+.a-thumb.wood{background:linear-gradient(135deg,#e8f5e9,#c8e6c9)}
+.a-thumb.fire{background:linear-gradient(135deg,#fff3e0,#ffe0b2)}
+.a-thumb.earth{background:linear-gradient(135deg,#fdf3e3,#f5e6c8)}
+.a-thumb.metal{background:linear-gradient(135deg,#eceff1,#cfd8dc)}
+.a-thumb.water{background:linear-gradient(135deg,#e3f2fd,#bbdefb)}
+.a-num{font-size:.72rem;font-weight:700;color:rgba(13,27,42,.3);font-family:'DM Sans',sans-serif;letter-spacing:.05em;margin-left:auto}
+.a-body{padding:1rem 1.25rem;flex:1}
+.a-meta{display:flex;gap:.5rem;align-items:center;margin-bottom:.55rem}
+.a-meta span{font-size:.75rem;color:var(--gray)}
+.tag{padding:.2rem .6rem;border-radius:10px;font-size:.72rem;font-weight:600}
+.tag-intro{background:rgba(44,82,130,.1);color:#2C5282}
+.tag-elements{background:rgba(192,57,43,.1);color:#c0392b}
+.tag-practical{background:rgba(61,107,71,.1);color:#3D6B47}
+.article-card h3{font-size:.97rem;font-weight:600;color:var(--ink);line-height:1.45;margin-bottom:.45rem;font-family:'DM Sans',sans-serif}
+.article-card p{font-size:.83rem;color:var(--gray);line-height:1.6;margin:0}
+.a-footer{padding:.8rem 1.25rem;border-top:1px solid rgba(13,27,42,.06);display:flex;justify-content:space-between;align-items:center}
+.a-footer span{font-size:.75rem;color:var(--gray)}
+.a-footer a{font-size:.82rem;font-weight:600;color:var(--gold);text-decoration:none}
+.a-footer a:hover{opacity:.75}
+.a-footer a.soon{color:rgba(13,27,42,.25);cursor:default;pointer-events:none}
+.articles-count{font-size:.84rem;color:var(--gray);margin-bottom:1rem}
+.learn-loading{text-align:center;padding:3rem;color:var(--gray);font-size:.9rem}
+.learn-error{text-align:center;padding:2rem;color:var(--verm)}
+</style>
 </head>
 <body>
 <div id="nav-placeholder"></div>
@@ -30,185 +61,159 @@
 </header>
 
 <main>
-  <div class="container">
-    <div class="ad-wrap mt-2"><!-- ADSENSE UNIT --></div>
+<div class="container">
+  <div class="ad-wrap mt-2"><!-- ADSENSE UNIT --></div>
 
-    <!-- 分类标签 / Category Tabs -->
-    <div class="cat-tabs">
-      <button class="cat-tab active" onclick="filterCat('all',this)">
-        <span class="en">All Articles</span><span class="zh">全部文章</span>
-      </button>
-      <button class="cat-tab" onclick="filterCat('intro',this)">
-        <span class="en">Introduction</span><span class="zh">入门基础</span>
-      </button>
-      <button class="cat-tab" onclick="filterCat('elements',this)">
-        <span class="en">🔥 Five Elements</span><span class="zh">🔥 五行详解</span>
-      </button>
-      <button class="cat-tab" onclick="filterCat('practical',this)">
-        <span class="en">🌿 Practical</span><span class="zh">🌿 实用指南</span>
-      </button>
-    </div>
+  <div class="cat-tabs" id="cat-tabs" style="display:none">
+    <button class="cat-tab active" onclick="filterCat('all',this)"><span class="en">All Articles</span><span class="zh">全部文章</span></button>
+    <button class="cat-tab" onclick="filterCat('intro',this)"><span class="en">📖 Introduction</span><span class="zh">📖 入门基础</span></button>
+    <button class="cat-tab" onclick="filterCat('elements',this)"><span class="en">🔥 Five Elements</span><span class="zh">🔥 五行详解</span></button>
+    <button class="cat-tab" onclick="filterCat('practical',this)"><span class="en">🌿 Practical</span><span class="zh">🌿 实用指南</span></button>
+  </div>
 
-    <!-- 文章列表 / Articles Grid -->
-    <div class="grid-3" id="articles-grid" style="padding-bottom:4rem">
+  <p class="articles-count" id="articles-count" style="display:none">
+    <span class="en">Showing <strong id="cnt">0</strong> articles</span>
+    <span class="zh">共 <strong id="cnt-zh">0</strong> 篇文章</span>
+  </p>
 
-      <article class="article-card" data-cat="intro">
-        <div class="a-thumb water">🌊</div>
-        <div class="a-body">
-          <div class="a-meta">
-            <span class="tag tag-water"><span class="en">Introduction</span><span class="zh">入门</span></span>
-            <span>5 min</span>
-          </div>
-          <h3>
-            <span class="en">What Is Your Day Master? The Core of Your BaZi</span>
-            <span class="zh">什么是日主？你的八字核心</span>
-          </h3>
-          <p>
-            <span class="en">The Day Pillar stem is the most important element in your chart — it is your core elemental identity.</span>
-            <span class="zh">日柱天干是命盘中最重要的元素——它是你的核心五行身份。</span>
-          </p>
-        </div>
-        <div class="a-footer">
-          <span><span class="en">Beginner</span><span class="zh">入门级</span></span>
-          <a href="/learn/what-is-bazi-four-pillars/"><span class="en">Read →</span><span class="zh">阅读 →</span></a>
-        </div>
-      </article>
-
-      <article class="article-card" data-cat="elements">
-        <div class="a-thumb fire">🔥</div>
-        <div class="a-body">
-          <div class="a-meta">
-            <span class="tag tag-fire"><span class="en">Five Elements</span><span class="zh">五行</span></span>
-            <span>8 min</span>
-          </div>
-          <h3>
-            <span class="en">The Five Elements: How Wood, Fire, Earth, Metal & Water Shape Your Destiny</span>
-            <span class="zh">五行详解：木火土金水如何塑造你的命运</span>
-          </h3>
-          <p>
-            <span class="en">The generating and controlling cycles between the Five Elements are the master key to BaZi.</span>
-            <span class="zh">五行生克制化，是解读八字命盘的核心密钥。</span>
-          </p>
-        </div>
-        <div class="a-footer">
-          <span><span class="en">Beginner</span><span class="zh">入门级</span></span>
-          <a href="/learn/five-elements-complete-guide/"><span class="en">Read →</span><span class="zh">阅读 →</span></a>
-        </div>
-      </article>
-
-      <article class="article-card" data-cat="practical">
-        <div class="a-thumb wood">🌿</div>
-        <div class="a-body">
-          <div class="a-meta">
-            <span class="tag tag-wood"><span class="en">Practical</span><span class="zh">实用</span></span>
-            <span>6 min</span>
-          </div>
-          <h3>
-            <span class="en">Missing Elements: Why Imbalance Causes Struggle and How to Fix It</span>
-            <span class="zh">缺失五行：为何失衡导致困境，以及如何改善</span>
-          </h3>
-          <p>
-            <span class="en">Discover what happens when elements are absent, and simple remedies that work.</span>
-            <span class="zh">了解五行缺失的影响，以及简单有效的补救方法。</span>
-          </p>
-        </div>
-        <div class="a-footer">
-          <span><span class="en">Intermediate</span><span class="zh">进阶级</span></span>
-          <a href="/learn/missing-elements-how-to-remedy/"><span class="en">Read →</span><span class="zh">阅读 →</span></a>
-        </div>
-      </article>
-
-      <article class="article-card" data-cat="intro">
-        <div class="a-thumb earth">⛰️</div>
-        <div class="a-body">
-          <div class="a-meta">
-            <span class="tag tag-earth"><span class="en">Introduction</span><span class="zh">入门</span></span>
-            <span>10 min</span>
-          </div>
-          <h3>
-            <span class="en">The Ten Day Masters: Your Elemental Personality Type</span>
-            <span class="zh">十天干日主：你的五行性格类型</span>
-          </h3>
-          <p>
-            <span class="en">Each Heavenly Stem creates a unique Day Master personality. Discover your elemental type.</span>
-            <span class="zh">每个天干造就独特的日主性格。探索你的五行类型。</span>
-          </p>
-        </div>
-        <div class="a-footer">
-          <span><span class="en">Intermediate</span><span class="zh">进阶级</span></span>
-          <a href="/learn/" style="color:var(--gold)"><span class="en">Coming Soon</span><span class="zh">即将上线</span></a>
-        </div>
-      </article>
-
-      <article class="article-card" data-cat="practical">
-        <div class="a-thumb metal">⚔️</div>
-        <div class="a-body">
-          <div class="a-meta">
-            <span class="tag tag-metal"><span class="en">Practical</span><span class="zh">实用</span></span>
-            <span>7 min</span>
-          </div>
-          <h3>
-            <span class="en">Using Crystals to Balance Your Missing Elements</span>
-            <span class="zh">用水晶平衡你的缺失五行</span>
-          </h3>
-          <p>
-            <span class="en">A practical guide to selecting element-balancing crystals for your home and workspace.</span>
-            <span class="zh">为家居和工作空间选择五行平衡水晶的实用指南。</span>
-          </p>
-        </div>
-        <div class="a-footer">
-          <span><span class="en">Practical</span><span class="zh">实用级</span></span>
-          <a href="/learn/" style="color:var(--gold)"><span class="en">Coming Soon</span><span class="zh">即将上线</span></a>
-        </div>
-      </article>
-
-      <article class="article-card" data-cat="elements">
-        <div class="a-thumb water">💎</div>
-        <div class="a-body">
-          <div class="a-meta">
-            <span class="tag tag-water"><span class="en">Advanced</span><span class="zh">进阶</span></span>
-            <span>9 min</span>
-          </div>
-          <h3>
-            <span class="en">BaZi Compatibility: How the Four Pillars Predict Relationship Harmony</span>
-            <span class="zh">八字合婚：四柱如何预测感情和谐度</span>
-          </h3>
-          <p>
-            <span class="en">Learn how elements interact between two charts to reveal natural compatibility.</span>
-            <span class="zh">了解两个命盘之间的五行互动如何揭示天然的契合度。</span>
-          </p>
-        </div>
-        <div class="a-footer">
-          <span><span class="en">Advanced</span><span class="zh">高级</span></span>
-          <a href="/learn/" style="color:var(--gold)"><span class="en">Coming Soon</span><span class="zh">即将上线</span></a>
-        </div>
-      </article>
-    </div>
-
-    <div class="ad-wrap" style="margin-bottom:3rem"><!-- ADSENSE UNIT --></div>
-
-    <div class="calc-banner" style="margin-bottom:4rem">
-      <div>
-        <h2><span class="en">Ready to Read Your Own Chart?</span><span class="zh">准备好解读自己的命盘了吗？</span></h2>
-        <p><span class="en">Use our free calculator to generate your Four Pillars chart instantly.</span><span class="zh">使用我们的免费计算器，立即生成你的四柱八字命盘。</span></p>
-      </div>
-      <a href="/calculator/" class="btn btn-gold btn-lg">
-        <span class="en">✦ Free BaZi Calculator</span><span class="zh">✦ 免费八字计算器</span>
-      </a>
+  <!-- 文章列表：由 JS 动态渲染 -->
+  <div class="articles-list" id="articles-grid">
+    <div class="learn-loading">
+      <span class="en">Loading articles…</span>
+      <span class="zh">加载文章中…</span>
     </div>
   </div>
+
+  <div class="ad-wrap" style="margin-bottom:3rem"><!-- ADSENSE UNIT --></div>
+
+  <div class="calc-banner" style="margin-bottom:4rem">
+    <div>
+      <h2><span class="en">Ready to Read Your Own Chart?</span><span class="zh">准备好解读自己的命盘了吗？</span></h2>
+      <p><span class="en">Use our free calculator to generate your Four Pillars chart instantly.</span><span class="zh">使用我们的免费计算器，立即生成你的四柱八字命盘。</span></p>
+    </div>
+    <a href="/calculator/" class="btn btn-gold btn-lg">
+      <span class="en">✦ Free BaZi Calculator</span><span class="zh">✦ 免费八字计算器</span>
+    </a>
+  </div>
+</div>
 </main>
 
 <div id="footer-placeholder"></div>
 <script src="/js/components.js"></script>
 <script>
 initComponents('learn');
-function filterCat(cat,btn){
-  document.querySelectorAll('.cat-tab').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  document.querySelectorAll('#articles-grid .article-card').forEach(card=>{
-    card.style.display=(cat==='all'||card.dataset.cat===cat)?'block':'none';
+
+const isZh = document.documentElement.lang === 'zh-CN';
+
+// 分类标签文字
+const CAT_LABELS = {
+  intro:     { en: 'Introduction', zh: '入门' },
+  elements:  { en: 'Five Elements', zh: '五行' },
+  practical: { en: 'Practical',     zh: '实用' }
+};
+const CAT_CLASSES = {
+  intro: 'tag-intro', elements: 'tag-elements', practical: 'tag-practical'
+};
+const LEVEL_ZH_MAP = {
+  'Beginner':     '入门级',
+  'Intermediate': '进阶级',
+  'Advanced':     '高级'
+};
+
+// 当前筛选
+let currentCat = 'all';
+
+// ── 从 API 加载文章 ────────────────────────────────
+fetch('/api/articles')
+  .then(r => r.json())
+  .then(data => {
+    const articles = data.articles || [];
+    if (!articles.length) {
+      document.getElementById('articles-grid').innerHTML =
+        `<div class="learn-error"><span class="en">No articles found.</span><span class="zh">暂无文章。</span></div>`;
+      return;
+    }
+    renderArticles(articles);
+    document.getElementById('cat-tabs').style.display    = 'flex';
+    document.getElementById('articles-count').style.display = 'block';
+    updateCount();
+  })
+  .catch(err => {
+    console.error('Failed to load articles:', err);
+    // API 失败时展示静态兜底列表
+    renderFallback();
+    document.getElementById('cat-tabs').style.display    = 'flex';
+    document.getElementById('articles-count').style.display = 'block';
+    updateCount();
   });
+
+// ── 渲染文章卡片 ──────────────────────────────────
+function renderArticles(articles) {
+  const grid = document.getElementById('articles-grid');
+  grid.innerHTML = articles.map((a, i) => {
+    const num      = String(i + 1).padStart(2, '0');
+    const catLabel = isZh ? CAT_LABELS[a.category]?.zh : CAT_LABELS[a.category]?.en;
+    const catCls   = CAT_CLASSES[a.category] || 'tag-intro';
+    const title    = isZh && a.titleZh ? a.titleZh : a.title;
+    const desc     = isZh && a.descZh  ? a.descZh  : a.description;
+    const level    = isZh ? (a.levelZh || LEVEL_ZH_MAP[a.level] || a.level) : a.level;
+
+    const linkHtml = a.available
+      ? `<a href="${a.href}"><span class="en">Read →</span><span class="zh">阅读 →</span></a>`
+      : `<a class="soon"><span class="en">Coming Soon</span><span class="zh">即将上线</span></a>`;
+
+    return `
+      <article class="article-card" data-cat="${a.category}">
+        <div class="a-thumb ${a.color}">
+          <span>${a.emoji}</span><span class="a-num">${num}</span>
+        </div>
+        <div class="a-body">
+          <div class="a-meta">
+            <span class="tag ${catCls}">${catLabel}</span>
+            <span>${a.readtime}</span>
+          </div>
+          <h3>${title}</h3>
+          <p>${desc}</p>
+        </div>
+        <div class="a-footer">
+          <span>${level}</span>
+          ${linkHtml}
+        </div>
+      </article>`;
+  }).join('');
+}
+
+// ── 分类筛选 ──────────────────────────────────────
+function filterCat(cat, btn) {
+  currentCat = cat;
+  document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#articles-grid .article-card').forEach(c => {
+    c.style.display = (cat === 'all' || c.dataset.cat === cat) ? '' : 'none';
+  });
+  updateCount();
+}
+
+function updateCount() {
+  const visible = document.querySelectorAll('#articles-grid .article-card:not([style*="none"])').length;
+  document.getElementById('cnt').textContent    = visible;
+  document.getElementById('cnt-zh').textContent = visible;
+}
+
+// ── 静态兜底（API 失败时用）─────────────────────────
+// 只列出已经有文件的文章，其余不显示
+function renderFallback() {
+  const fallback = [
+    { slug:'what-is-bazi-four-pillars',          emoji:'🌊', color:'water',  category:'intro',     readtime:'5 min',  level:'Beginner',     title:'What Is Your Day Master?',                        titleZh:'什么是日主？你的八字核心',          desc:'The Day Pillar stem is your core elemental identity.',                   descZh:'日柱天干是你的核心五行身份，影响命盘中的一切。' },
+    { slug:'five-elements-complete-guide',        emoji:'🔥', color:'fire',   category:'elements',  readtime:'8 min',  level:'Beginner',     title:'The Five Elements Complete Guide',                 titleZh:'五行完整指南',                       desc:'The generating and controlling cycles are the master key.',               descZh:'五行生克制化是解读命盘的核心密钥。' },
+    { slug:'missing-elements-how-to-remedy',      emoji:'🌿', color:'wood',   category:'practical', readtime:'6 min',  level:'Intermediate', title:'Missing Elements & How to Remedy Them',            titleZh:'缺失五行与补救方法',                 desc:'Discover what happens when elements are absent.',                        descZh:'了解五行缺失的影响及简单有效的补救方法。' },
+    { slug:'the-12-earthly-branches',             emoji:'🐉', color:'earth',  category:'intro',     readtime:'8 min',  level:'Beginner',     title:'The 12 Earthly Branches',                         titleZh:'十二地支详解',                       desc:'Each branch carries hidden elemental energies.',                         descZh:'每个地支都藏有称为藏干的隐秘五行。' },
+    { slug:'heavenly-stems-and-earthly-branches', emoji:'☯',  color:'metal',  category:'intro',     readtime:'7 min',  level:'Beginner',     title:'Heavenly Stems & Earthly Branches',               titleZh:'天干与地支基石',                     desc:'The 10 Stems and 12 Branches — the fundamental alphabet of BaZi.',       descZh:'十天干与十二地支——八字命理的基础字母表。' },
+    { slug:'how-to-read-your-bazi-chart',         emoji:'🔍', color:'water',  category:'intro',     readtime:'10 min', level:'Beginner',     title:'How to Read Your BaZi Chart',                     titleZh:'如何读懂你的八字命盘',               desc:'Five essential layers, from Day Master to Useful God.',                  descZh:'五个核心层次，从日主到用神。' },
+    { slug:'bazi-vs-western-astrology',           emoji:'⭐', color:'fire',   category:'intro',     readtime:'8 min',  level:'Beginner',     title:'BaZi vs Western Astrology',                       titleZh:'八字与西方占星的区别',               desc:'Both reveal fate — but with fundamentally different methods.',            descZh:'两者都揭示命运，但方法有本质区别。' },
+    { slug:'four-pillars-meanings',               emoji:'⊞',  color:'earth',  category:'intro',     readtime:'9 min',  level:'Beginner',     title:'Year, Month, Day & Hour Pillars Explained',       titleZh:'年月日时柱含义详解',                 desc:'Each column tells a distinct story about a different life area.',        descZh:'每一柱讲述你人生不同维度的故事。' },
+  ];
+  renderArticles(fallback.map(a => ({ ...a, href: `/learn/${a.slug}/`, available: true })));
 }
 </script>
 </body>
