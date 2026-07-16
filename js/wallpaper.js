@@ -343,7 +343,7 @@ function renderWallpaperSection(pillars, dayMasterEl, missing, globalUnlocked, l
         <div class="wallpaper-info">
           <div class="wp-el-name">${EL_EMOJI[el]} ${isZh ? EL_ZH[el] : el}</div>
           <div class="wp-theme-name">${isZh ? theme.name.zh : theme.name.en}</div>
-          <div class="wp-price">$1.99</div>
+          <div class="wallpaper-price">$1.99</div>
           ${(globalUnlocked || (typeof isWpElementUnlocked === 'function' && isWpElementUnlocked(el)))
             ? `<button class="btn-wp-download btn-gold btn btn-sm" onclick="handleWpDownload('${el}')">
                 ${isZh ? '⬇ 下载壁纸' : '⬇ Download'}
