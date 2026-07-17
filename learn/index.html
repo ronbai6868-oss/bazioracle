@@ -123,29 +123,22 @@ const LEVEL_ZH_MAP = {
 // 当前筛选
 let currentCat = 'all';
 
-// ── 从 API 加载文章 ────────────────────────────────
+// ── 立即用静态列表渲染（保证任何情况下都显示）──
+renderFallback();
+document.getElementById('cat-tabs').style.display     = 'flex';
+document.getElementById('articles-count').style.display = 'block';
+updateCount();
+
+// ── 尝试用 API 刷新（有新文章时自动更新）──
 fetch('/api/articles')
-  .then(r => r.json())
+  .then(r => r.ok ? r.json() : null)
   .then(data => {
-    const articles = data.articles || [];
-    if (!articles.length) {
-      document.getElementById('articles-grid').innerHTML =
-        `<div class="learn-error"><span class="en">No articles found.</span><span class="zh">暂无文章。</span></div>`;
-      return;
+    if (data && data.articles && data.articles.length > 0) {
+      renderArticles(data.articles);
+      updateCount();
     }
-    renderArticles(articles);
-    document.getElementById('cat-tabs').style.display    = 'flex';
-    document.getElementById('articles-count').style.display = 'block';
-    updateCount();
   })
-  .catch(err => {
-    console.error('Failed to load articles:', err);
-    // API 失败时展示静态兜底列表
-    renderFallback();
-    document.getElementById('cat-tabs').style.display    = 'flex';
-    document.getElementById('articles-count').style.display = 'block';
-    updateCount();
-  });
+  .catch(() => { /* 静默失败，已有静态列表 */ });
 
 // ── 渲染文章卡片 ──────────────────────────────────
 function renderArticles(articles) {
