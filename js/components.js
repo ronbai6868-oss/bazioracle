@@ -123,3 +123,56 @@ function getFooterHTML() {
         <!-- <a href="${langHref('/shop/')}"><span class="en">Element Shop</span><span class="zh">五行商品</span></a> 开通店铺后取消注释 -->
       </div>
       <div class="footer-col">
+
+        <h5><span class="en">Legal</span><span class="zh">法律</span></h5>
+        <a href="/terms/"><span class="en">Terms of Service</span><span class="zh">服务条款</span></a>
+        <a href="/privacy/"><span class="en">Privacy Policy</span><span class="zh">隐私政策</span></a>
+        <a href="/refunds/"><span class="en">Refund Policy</span><span class="zh">退款政策</span></a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© ${yr} BaZi Oracle. <span class="en">All rights reserved.</span><span class="zh">保留所有权利。</span></span>
+      <span style="color:rgba(255,255,255,.3);font-size:.8rem">
+        <span class="en">Powered by AI · For entertainment purposes</span>
+        <span class="zh">AI 驱动 · 仅供参考娱乐</span>
+      </span>
+    </div>
+  </div>
+</footer>`;
+}
+
+// ── 初始化（每个页面底部调用）──────────────────────────
+function initComponents(activePage) {
+  // 注入导航
+  const navEl = document.getElementById('nav-placeholder');
+  if (navEl) navEl.outerHTML = getNavHTML(activePage);
+
+  // 注入页脚
+  const footEl = document.getElementById('footer-placeholder');
+  if (footEl) footEl.outerHTML = getFooterHTML();
+
+  // 应用语言
+  applyLang();
+
+  // 汉堡菜单
+  const toggle = document.getElementById('navToggle');
+  const mobile = document.getElementById('navMobile');
+  if (toggle && mobile) {
+    toggle.addEventListener('click', () => {
+      mobile.classList.toggle('open');
+      toggle.textContent = mobile.classList.contains('open') ? '✕' : '☰';
+    });
+  }
+
+  // Google Analytics
+  if (typeof GA_ID !== 'undefined' && GA_ID && GA_ID !== 'G-XXXXXXXXXX') {
+    const s = document.createElement('script');
+    s.async = true;
+    s.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
+    document.head.appendChild(s);
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', GA_ID);
+  }
+}
