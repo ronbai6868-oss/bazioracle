@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style id="ls">.zh{display:none!important}</style>
+<script>(function(){var z=new URLSearchParams(location.search).get('lang')==='zh';document.documentElement.lang=z?'zh-CN':'en';if(z){document.getElementById('ls').textContent='.en{display:none!important}';}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="shortcut icon" href="/favicon.svg">
+<title>Your BaZi Reading | BaZi Oracle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+<style>
+/* ── 结果页专属样式 ── */
+.reading-wrap { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
+
+/* 加载状态 */
+.reading-loading {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 70vh; text-align: center; gap: 2rem;
+}
+.loading-orb {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #e8d5a3, #c9a84c 40%, #a8893d);
+  box-shadow: 0 0 40px rgba(201,168,76,.4);
+  animation: pulse-orb 2s ease-in-out infinite;
+}
+@keyframes pulse-orb {
+  0%,100% { transform: scale(1);   box-shadow: 0 0 40px rgba(201,168,76,.4); }
+  50%      { transform: scale(1.1); box-shadow: 0 0 60px rgba(201,168,76,.6); }
+}
+.loading-title { font-family: 'Cormorant Garamond',serif; font-size: 2rem; color: var(--ink); }
+.loading-sub   { color: var(--gray); font-size: .95rem; }
+.loading-steps { display: flex; flex-direction: column; gap: .6rem; margin-top: 1rem; }
+.loading-step  {
+  display: flex; align-items: center; gap: .75rem; padding: .65rem 1.2rem;
+  background: var(--off); border-radius: 8px; font-size: .88rem; color: var(--gray);
+  transition: all .4s;
+}
+.loading-step.active  { background: rgba(201,168,76,.12); color: var(--ink); font-weight: 500; }
+.loading-step.done    { color: #3D6B47; }
+.loading-step .step-icon { font-size: 1rem; min-width: 20px; }
+.step-spinner {
+  width: 16px; height: 16px; border: 2px solid rgba(201,168,76,.3);
+  border-top-color: var(--gold); border-radius: 50%; animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* 结果卡片顶部 */
+.reading-header {
+  background: linear-gradient(135deg, var(--ink) 0%, var(--ink2) 100%);
+  border-radius: var(--r2); padding: 2.5rem 2rem; margin-bottom: 2rem;
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;
+}
+.reading-header-left h1 {
+  font-size: 1.9rem; color: var(--gold); margin-bottom: .4rem;
+}
+.reading-header-left p { color: rgba(255,255,255,.6); font-size: .9rem; }
+.pillars-inline {
+  display: flex; gap: 1.2rem;
+}
+.pillar-chip {
+  text-align: center; background: rgba(201,168,76,.1); border: 1px solid rgba(201,168,76,.25);
+  border-radius: 10px; padding: .6rem .9rem;
+}
+.pillar-chip .pc-label { font-size: .65rem; color: rgba(201,168,76,.6); text-transform: uppercase; letter-spacing: .08em; }
+.pillar-chip .pc-chars { font-family: 'Cormorant Garamond',serif; font-size: 1.5rem; color: var(--white); }
+
+/* 行动按钮区 */
+.reading-actions {
+  display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem;
+}
+.btn-reading-back {
+  display: inline-flex; align-items: center; gap: .5rem;
+  padding: .65rem 1.2rem; border-radius: 8px; font-size: .88rem;
+  background: transparent; border: 1px solid rgba(13,27,42,.15); color: var(--gray);
+  cursor: pointer; transition: all .2s; font-family: 'DM Sans',sans-serif;
+}
+.btn-reading-back:hover { border-color: var(--gold); color: var(--gold); }
+.btn-download-pdf {
+  display: inline-flex; align-items: center; gap: .5rem;
+  padding: .65rem 1.4rem; border-radius: 8px; font-size: .88rem;
+  background: var(--gold); color: var(--ink); font-weight: 600;
+  cursor: pointer; border: none; transition: all .2s; font-family: 'DM Sans',sans-serif;
+}
+.btn-download-pdf:hover { background: var(--gold-d); transform: translateY(-1px); box-shadow: var(--sh2); }
+
+/* AI解读收起/展开 */
+.ai-section-collapsed { display: none; }
+.ai-toggle-wrap { text-align: center; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,.08); }
+.btn-ai-toggle {
+  background: rgba(201,168,76,.12); border: 1px solid rgba(201,168,76,.3); color: var(--gold);
+  padding: .6rem 1.6rem; border-radius: 20px; cursor: pointer; font-size: .88rem;
+  font-family: 'DM Sans',sans-serif; transition: all .2s;
+}
+.btn-ai-toggle:hover { background: rgba(201,168,76,.2); }
+.ai-analysis-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap;
+}
+.btn-save-pdf {
+  font-size: .82rem; padding: .5rem 1rem; white-space: nowrap; flex-shrink: 0;
+}
+
+/* 缓存命中提示 */
+.cache-banner {
+  background: rgba(61,107,71,.08); border: 1px solid rgba(61,107,71,.2);
+  border-radius: 8px; padding: .75rem 1.2rem; margin-bottom: 1.5rem;
+  display: flex; align-items: center; gap: .75rem; font-size: .88rem; color: #3D6B47;
+}
+
+/* 错误状态 */
+.reading-error {
+  text-align: center; padding: 4rem 2rem;
+}
+.reading-error h2 { color: var(--verm); margin-bottom: 1rem; }
+.reading-error p  { color: var(--gray); margin-bottom: 2rem; }
+
+/* ★ AI 解读正文颜色修复（高对比度）*/
+.ai-section { margin-bottom: 1.5rem; }
+.ai-section h4 {
+  color: var(--gold); font-size: 1rem; font-weight: 700;
+  letter-spacing: .04em; margin-bottom: .75rem;
+  border-left: 3px solid var(--gold); padding-left: .75rem;
+}
+.ai-section p      { color: rgba(255,255,255,1); font-size: .95rem; line-height: 2; }
+.ai-section li     { color: rgba(255,255,255,1); font-size: .95rem; line-height: 1.9; margin-bottom: .35rem; }
+.ai-section ul     { padding-left: 1.25rem; margin: .5rem 0; }
+.ai-section strong { color: var(--gold); font-weight: 600; }
+.ai-section em     { color: rgba(255,255,255,.85); font-style: italic; }
+.ai-section .md-h3,.ai-section .md-h2 {
+  display: block; color: var(--gold); font-weight: 700;
+  font-size: .95rem; margin: .75rem 0 .4rem;
+}
+.ai-body { color: rgba(255,255,255,1); font-size: .95rem; line-height: 2; }
+.ai-body br { display: block; content: ''; margin-bottom: .2rem; }
+.ai-body strong { color: var(--gold); font-weight: 600; }
+.ai-body em     { color: rgba(255,255,255,.85); font-style: italic; }
+.ai-body ul     { padding-left: 1.25rem; margin: .4rem 0; }
+.ai-body li     { color: rgba(255,255,255,1); line-height: 1.9; margin-bottom: .3rem; }
+.ai-body .md-h3 { display:block;color:var(--gold);font-weight:700;font-size:.95rem;margin:.6rem 0 .3rem; }
+.ai-section-collapsed { display: none; }
+.ai-toggle-wrap { text-align: center; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,.08); }
+.btn-ai-toggle {
+  background: rgba(201,168,76,.12); border: 1px solid rgba(201,168,76,.3);
+  color: var(--gold); padding: .6rem 1.8rem; border-radius: 20px;
+  cursor: pointer; font-size: .88rem; font-family: 'DM Sans',sans-serif; transition: all .2s;
+}
+.btn-ai-toggle:hover { background: rgba(201,168,76,.22); }
+</style>
+</head>
+<body>
+<div id="nav-placeholder"></div>
+
+<main class="reading-wrap">
+
+  <!-- 加载状态 -->
+  <div id="reading-loading" class="reading-loading">
+    <div class="loading-orb"></div>
+    <div>
+      <div class="loading-title">
+        <span class="en">Reading Your Chart…</span>
+        <span class="zh">正在解读您的命盘…</span>
+      </div>
+      <div class="loading-sub">
+        <span class="en">This usually takes 10–20 seconds</span>
+        <span class="zh">通常需要 10–20 秒</span>
+      </div>
+    </div>
+    <div class="loading-steps" id="loading-steps">
+      <div class="loading-step active" id="step-verify">
+        <span class="step-icon">🔐</span>
+        <span class="en">Verifying your payment…</span>
+        <span class="zh">验证支付中…</span>
+        <div class="step-spinner" style="margin-left:auto"></div>
+      </div>
+      <div class="loading-step" id="step-chart">
+        <span class="step-icon">⊞</span>
+        <span class="en">Building your chart…</span>
+        <span class="zh">生成命盘中…</span>
+      </div>
+      <div class="loading-step" id="step-ai">
+        <span class="step-icon">✦</span>
+        <span class="en">AI is analysing your destiny…</span>
+        <span class="zh">AI 正在解读您的命运…</span>
+      </div>
+      <div class="loading-step" id="step-pdf">
+        <span class="step-icon">📄</span>
+        <span class="en">Preparing your PDF report…</span>
+        <span class="zh">生成 PDF 报告中…</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 结果内容（初始隐藏）-->
+  <div id="reading-result" style="display:none">
+
+    <!-- 顶部命盘摘要 -->
+    <div class="reading-header">
+      <div class="reading-header-left">
+        <h1>
+          <span class="en">Your BaZi Reading</span>
+          <span class="zh">你的八字命盘解读</span>
+        </h1>
+        <p id="reading-header-sub"></p>
+      </div>
+      <div class="pillars-inline" id="pillars-inline"></div>
+    </div>
+
+    <!-- 操作按钮 -->
+    <div class="reading-actions">
+      <button class="btn-reading-back" onclick="goBack()">
+        ← <span class="en">Back to Calculator</span><span class="zh">返回计算器</span>
+      </button>
+      <button class="btn-download-pdf" onclick="window._downloadPDF && window._downloadPDF()">
+        📄 <span class="en">Download PDF Report</span><span class="zh">下载 PDF 报告</span>
+      </button>
+    </div>
+
+    <!-- 缓存命中提示 -->
+    <div id="cache-banner" class="cache-banner" style="display:none">
+      ✓ <span class="en">Your reading is restored from cache — no AI call needed.</span>
+        <span class="zh">已从本地缓存恢复您的解读，无需重新调用 AI。</span>
+    </div>
+
+    <!-- 五行平衡 -->
+    <div class="calc-card" style="margin-bottom:1.5rem">
+      <div class="cc-header">
+        <h2>⊞ <span class="en">Elemental Balance</span><span class="zh">五行平衡</span></h2>
+      </div>
+      <div class="cc-body" id="balance-content"></div>
+    </div>
+
+    <!-- 日主 -->
+    <div class="dm-card" id="dm-content" style="margin-bottom:1.5rem"></div>
+
+    <!-- 缺失五行 -->
+    <div id="missing-content" class="missing-card has-missing" style="margin-bottom:1.5rem"></div>
+
+    <!-- AI 深度解读 -->
+    <div id="ai-analysis-section" style="margin-bottom:1.5rem"></div>
+
+    <!-- 壁纸区块 -->
+    <div id="wallpaper-section" style="display:none"></div>
+
+    <!-- 底部提示 -->
+    <div class="calc-card" style="padding:1.5rem;margin-top:2rem;text-align:center;background:rgba(201,168,76,.04)">
+      <p style="font-size:.85rem;color:var(--gray)">
+        <span class="en">💾 Your reading is saved locally on this device. Enter the same birth details on the calculator page to restore it anytime.</span>
+        <span class="zh">💾 您的解读已保存在本设备。在计算器页面输入相同生日，即可随时恢复。</span>
+      </p>
+    </div>
+
+  </div>
+
+  <!-- 错误状态 -->
+  <div id="reading-error" style="display:none" class="reading-error">
+    <h2>⚠ <span class="en">Verification Failed</span><span class="zh">验证失败</span></h2>
+    <p id="error-msg"></p>
+    <button class="btn btn-gold" onclick="goBack()">
+      <span class="en">← Return to Calculator</span><span class="zh">← 返回计算器</span>
+    </button>
+  </div>
+
+</main>
+
+<div id="footer-placeholder"></div>
+<script src="/js/components.js"></script>
+<script src="/js/bazi.js"></script>
+<script src="/js/payment.js"></script>
+<script src="/js/wallpaper.js"></script>
+<script>
+initComponents('reading');
+
+const params     = new URLSearchParams(window.location.search);
+const chartHash  = params.get('hash');
+const sessionKey = params.get('session');   // Gumroad 支付回调用 session
+const lang       = params.get('lang') || 'en';
+const isPending  = params.get('unlock') === 'pending';
+
+function stepDone(id)   {
+  const el = document.getElementById(id);
+  if (el) { el.classList.remove('active'); el.classList.add('done'); el.querySelector('.step-spinner')?.remove(); el.querySelector('.step-icon').textContent = '✅'; }
+}
+function stepActive(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.classList.add('active');
+    if (!el.querySelector('.step-spinner')) {
+      const sp = document.createElement('div');
+      sp.className = 'step-spinner';
+      sp.style.marginLeft = 'auto';
+      el.appendChild(sp);
+    }
+  }
+}
+
+function showError(msg) {
+  document.getElementById('reading-loading').style.display = 'none';
+  document.getElementById('reading-error').style.display   = 'block';
+  document.getElementById('error-msg').textContent = msg;
+}
+
+function goBack() {
+  const base = lang === 'zh' ? '/calculator/?lang=zh' : '/calculator/';
+  window.location.href = base;
+}
+
+function renderReadingHeader(data) {
+  const EL_ZH  = {Wood:'木',Fire:'火',Earth:'土',Metal:'金',Water:'水'};
+  const dm      = data.pillars.day;
+  const sub     = document.getElementById('reading-header-sub');
+  if (sub) sub.textContent = lang==='zh'
+    ? `日主：${dm.stem}（${EL_ZH[dm.stemEl]}）· 四柱命盘`
+    : `Day Master: ${dm.stem} (${dm.stemEl}) · Four Pillars Chart`;
+
+  const labels = lang==='zh' ? ['年','月','日','时'] : ['Year','Month','Day','Hour'];
+  const keys   = ['year','month','day','hour'];
+  const wrap   = document.getElementById('pillars-inline');
+  if (wrap) wrap.innerHTML = keys.map((k,i) => `
+    <div class="pillar-chip">
+      <div class="pc-label">${labels[i]}</div>
+      <div class="pc-chars">${data.pillars[k].stem}${data.pillars[k].branch}</div>
+    </div>`).join('');
+}
+
+// ── PDF 下载（重新设计排版，A4竖版，清晰分区）──
+window._downloadPDF = function() {
+  const chart = window._currentChart;
+  if (!chart) return;
+
+  // A4 @2x = 1587 × 2245
+  const W = 1587, H = 2245;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = true;
+
+  // ── 背景渐变 ──
+  const bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0,   '#0D1B2A');
+  bg.addColorStop(0.5, '#152233');
+  bg.addColorStop(1,   '#0D1B2A');
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+  // ── 顶部金色双线 ──
+  ctx.strokeStyle = '#C9A84C'; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.moveTo(60, 70); ctx.lineTo(W-60, 70); ctx.stroke();
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(60, 76); ctx.lineTo(W-60, 76); ctx.stroke();
+
+  // ── Logo + 标题 ──
+  ctx.fillStyle = '#C9A84C';
+  ctx.font = 'bold 44px serif'; ctx.textAlign = 'center';
+  ctx.fillText(lang==='zh' ? '☯ 八字命盘深度解读报告' : '☯ BaZi Four Pillars Reading Report', W/2, 130);
+
+  const dm = chart.pillars.day;
+  ctx.fillStyle = 'rgba(255,255,255,.6)'; ctx.font = '26px sans-serif';
+  ctx.fillText(lang==='zh'
+    ? `日主：${dm.stem}${dm.branch}  ·  生成时间：${new Date().toLocaleDateString('zh-CN')}`
+    : `Day Master: ${dm.stem}${dm.branch}  ·  ${new Date().toLocaleDateString('en-US')}`,
+    W/2, 168);
+
+  // ── 四柱区（背景块）──
+  ctx.fillStyle = 'rgba(201,168,76,.06)';
+  roundRect(ctx, 60, 188, W-120, 160, 12); ctx.fill();
+  ctx.strokeStyle = 'rgba(201,168,76,.2)'; ctx.lineWidth = 1;
+  roundRect(ctx, 60, 188, W-120, 160, 12); ctx.stroke();
+
+  const pkeys   = ['year','month','day','hour'];
+  const plabels = lang==='zh' ? ['年柱','月柱','日柱（日主）','时柱'] : ['Year','Month','Day Master','Hour'];
+  pkeys.forEach((k, i) => {
+    const p  = chart.pillars[k];
+    const x  = 160 + i * 320;
+    ctx.fillStyle = 'rgba(201,168,76,.7)'; ctx.font = '22px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(plabels[i], x, 224);
+    ctx.fillStyle = i===2 ? '#C9A84C' : '#fff'; ctx.font = 'bold 60px serif';
+    ctx.fillText(p.stem + p.branch, x, 308);
+  });
+
+  // ── 分割线 ──
+  function divider(y) {
+    ctx.strokeStyle = 'rgba(201,168,76,.25)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(60, y); ctx.lineTo(W-60, y); ctx.stroke();
+  }
+  divider(368);
+
+  // ── 五行雷达图区（左）+ 缺失五行（右）──
+  const radarCx = 280, radarCy = 560, radarR = 160;
+  const EL_ORDER = ['Wood','Fire','Earth','Metal','Water'];
+  const EL_COL   = {Wood:'#4a9b5f',Fire:'#e05c3a',Earth:'#c8982a',Metal:'#7a8fa0',Water:'#3a7abf'};
+  const EL_NAME  = lang==='zh'
+    ? {Wood:'木',Fire:'火',Earth:'土',Metal:'金',Water:'水'}
+    : {Wood:'Wood',Fire:'Fire',Earth:'Earth',Metal:'Metal',Water:'Water'};
+  const EL_EMOJI = {Wood:'🌿',Fire:'🔥',Earth:'⛰',Metal:'⚔',Water:'🌊'};
+  const maxV     = chart.total || 8;
+  const angles2  = EL_ORDER.map((_,i) => -Math.PI/2 + i*2*Math.PI/5);
+
+  // 网格
+  [0.25, 0.5, 0.75, 1].forEach(f => {
+    const gp = angles2.map(a => [radarCx+radarR*f*Math.cos(a), radarCy+radarR*f*Math.sin(a)]);
+    ctx.strokeStyle = 'rgba(201,168,76,.12)'; ctx.lineWidth = 1; ctx.beginPath();
+    gp.forEach((p,i) => i ? ctx.lineTo(p[0],p[1]) : ctx.moveTo(p[0],p[1]));
+    ctx.closePath(); ctx.stroke();
+  });
+  angles2.forEach(a => {
+    ctx.strokeStyle='rgba(201,168,76,.08)'; ctx.lineWidth=1; ctx.beginPath();
+    ctx.moveTo(radarCx,radarCy);
+    ctx.lineTo(radarCx+radarR*Math.cos(a), radarCy+radarR*Math.sin(a)); ctx.stroke();
+  });
+
+  // 数据面
+  const dataR2 = EL_ORDER.map(el => Math.max(radarR*0.12, radarR*(chart.balance[el]||0)/maxV));
+  const dp2    = angles2.map((a,i) => [radarCx+dataR2[i]*Math.cos(a), radarCy+dataR2[i]*Math.sin(a)]);
+  ctx.fillStyle='rgba(201,168,76,.15)'; ctx.strokeStyle='rgba(201,168,76,.75)'; ctx.lineWidth=2;
+  ctx.beginPath(); dp2.forEach((p,i) => i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  dp2.forEach(p => { ctx.fillStyle='#C9A84C'; ctx.beginPath(); ctx.arc(p[0],p[1],5,0,Math.PI*2); ctx.fill(); });
+
+  // 标签
+  EL_ORDER.forEach((el, i) => {
+    const lx = radarCx + (radarR+38)*Math.cos(angles2[i]);
+    const ly  = radarCy + (radarR+38)*Math.sin(angles2[i]);
+    const pct = Math.round((chart.balance[el]||0)/maxV*100);
+    ctx.fillStyle = EL_COL[el]; ctx.font = 'bold 22px serif'; ctx.textAlign = 'center';
+    ctx.fillText(EL_NAME[el], lx, ly-8);
+    ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.font = '18px sans-serif';
+    ctx.fillText(pct+'%', lx, ly+14);
+  });
+
+  // 雷达图标题
+  ctx.fillStyle='rgba(201,168,76,.7)'; ctx.font='bold 22px sans-serif'; ctx.textAlign='center';
+  ctx.fillText(lang==='zh'?'五行平衡':'Elemental Balance', radarCx, 382);
+
+  // ── 右侧：缺失/薄弱五行 ──
+  const rx = 580, ry = 400;
+  ctx.fillStyle = 'rgba(201,168,76,.8)'; ctx.font = 'bold 24px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText(lang==='zh'?'五行分布':'Element Distribution', rx, ry);
+
+  EL_ORDER.forEach((el, i) => {
+    const cnt = chart.balance[el] || 0;
+    const pct = Math.round(cnt/maxV*100);
+    const y0  = ry + 40 + i * 64;
+    // 名称
+    ctx.fillStyle = EL_COL[el]; ctx.font = 'bold 22px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText(EL_EMOJI[el] + ' ' + EL_NAME[el], rx, y0+20);
+    // 条形背景
+    ctx.fillStyle = 'rgba(255,255,255,.07)';
+    roundRect(ctx, rx+160, y0+4, 620, 24, 12); ctx.fill();
+    // 条形填充
+    if (pct > 0) {
+      ctx.fillStyle = EL_COL[el];
+      roundRect(ctx, rx+160, y0+4, Math.max(24, 620*pct/100), 24, 12); ctx.fill();
+    }
+    // 百分比
+    ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.font = '20px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText(pct+'%', rx+794, y0+22);
+
+    // 状态标签
+    const status = cnt===0?(lang==='zh'?'缺失':'Missing'):cnt===1?(lang==='zh'?'薄弱':'Weak'):cnt>=3?(lang==='zh'?'旺盛':'Strong'):'';
+    if (status) {
+      const sc = cnt===0?'#e05c3a':cnt===1?'#c8982a':'#4a9b5f';
+      ctx.fillStyle = sc; ctx.font = '18px sans-serif';
+      ctx.fillText(status, rx+840, y0+22);
+    }
+  });
+
+  divider(760);
+
+  // ── AI 解读区 ──
+  ctx.fillStyle = '#C9A84C'; ctx.font = 'bold 28px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText(lang==='zh'?'✦ AI 深度解读':'✦ AI Deep Reading', 60, 800);
+
+  let y = 840;
+  const maxY = H - 100;
+  const allSections = document.querySelectorAll('#ai-sections-wrap .ai-section');
+
+  allSections.forEach(sec => {
+    if (y >= maxY) return;
+    const h4 = sec.querySelector('h4');
+    const body = sec.querySelector('.ai-body');
+
+    if (h4 && h4.textContent.trim()) {
+      y += 20;
+      ctx.fillStyle = '#C9A84C'; ctx.font = 'bold 26px sans-serif'; ctx.textAlign = 'left';
+      wrapAndDraw(ctx, h4.textContent.trim(), 60, y, W-120, 26, '#C9A84C', true);
+      y += 38;
+    }
+    if (body) {
+      const rawText = body.innerText || body.textContent || '';
+      const wrapped = wrapCanvasText(ctx, rawText, W-120, 22);
+      wrapped.forEach(line => {
+        if (y >= maxY) return;
+        if (!line.trim()) { y += 14; return; }
+        ctx.fillStyle = 'rgba(255,255,255,.92)'; ctx.font = '22px sans-serif'; ctx.textAlign = 'left';
+        ctx.fillText(line, 60, y); y += 36;
+      });
+      y += 12;
+    }
+  });
+
+  // ── 底部 ──
+  ctx.strokeStyle = '#C9A84C'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(60, H-70); ctx.lineTo(W-60, H-70); ctx.stroke();
+  ctx.fillStyle = 'rgba(201,168,76,.5)'; ctx.font = '22px serif'; ctx.textAlign = 'center';
+  ctx.fillText('☯ BaZi Oracle  ·  getbazioracle.com', W/2, H-35);
+
+  // 下载
+  const link = document.createElement('a');
+  link.download = lang==='zh' ? `八字解读_${dm.stem}${dm.branch}.png` : `BaZi_Reading_${dm.stem}${dm.branch}.png`;
+  link.href = canvas.toDataURL('image/png', 1.0);
+  link.click();
+};
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.lineTo(x+w-r, y); ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+  ctx.lineTo(x+w, y+h-r); ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+  ctx.lineTo(x+r, y+h); ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+  ctx.lineTo(x, y+r); ctx.quadraticCurveTo(x, y, x+r, y);
+  ctx.closePath();
+}
+
+function wrapAndDraw(ctx, text, x, y, maxW, size, color, bold) {
+  ctx.fillStyle = color;
+  ctx.font = (bold?'bold ':'')+size+'px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText(text, x, y);
+}
+
+
+
+function wrapCanvasText(ctx, text, maxWidth, fontSize) {
+  if (fontSize) ctx.font = fontSize + 'px sans-serif';
+  const result = [];
+  (text || '').split('\n').forEach(line => {
+    if (!line.trim()) { result.push(''); return; }
+    const chars = line.split(''); let cur = '';
+    chars.forEach(ch => {
+      if (ctx.measureText(cur + ch).width > maxWidth) { result.push(cur); cur = ch; }
+      else cur += ch;
+    });
+    if (cur) result.push(cur);
+  });
+  return result;
+}
+
+// ── 壁纸支付回调：自动下载 ──
+const wpElement = params.get('element');
+const origHash  = params.get('origHash') || (chartHash ? chartHash.replace(/_wp_.*$/, '') : '');
+if (isPending && params.get('type') === 'wallpaper' && wpElement) {
+  (async function() {
+    document.getElementById('reading-loading').style.display = 'block';
+    stepActive('step-verify');
+    try {
+      // Gumroad: 用 sessionKey；旧版: 用 chartHash（含_wp_后缀）
+      const wpVerifyKey    = sessionKey || chartHash;
+      const wpIsSession    = !!sessionKey;
+      await handlePaymentReturn(wpVerifyKey, lang, (attempt, max) => {
+        const el = document.getElementById('step-verify');
+        if (el) {
+          const pct = Math.round(attempt/max*100);
+          el.querySelector('span.en') && (el.querySelector('span.en').textContent = `Verifying… ${pct}%`);
+          el.querySelector('span.zh') && (el.querySelector('span.zh').textContent = `验证中… ${pct}%`);
+        }
+      });
+      stepDone('step-verify');
+      document.getElementById('reading-loading').style.display = 'none';
+
+      // 恢复命盘数据：优先 sessionStorage，其次 localStorage（用 origHash 查）
+      let pillars = null;
+      try {
+        const ss = sessionStorage.getItem('bazi_chart');
+        if (ss) { pillars = JSON.parse(ss).pillars; }
+      } catch(e) {}
+      if (!pillars) {
+        try {
+          const ls = localStorage.getItem('bazi_chart_' + origHash);
+          if (ls) { pillars = JSON.parse(ls).pillars; }
+        } catch(e) {}
+      }
+
+      document.getElementById('reading-result').style.display = 'block';
+      document.getElementById('reading-result').innerHTML = `
+        <div class="calc-card" style="padding:2.5rem;text-align:center;max-width:500px;margin:0 auto">
+          <div style="font-size:3.5rem;margin-bottom:1rem">🎉</div>
+          <h2 style="margin-bottom:.75rem;color:var(--gold)">
+            ${lang==='zh'?'壁纸解锁成功！':'Wallpaper Unlocked!'}
+          </h2>
+          <p style="color:var(--gray);margin-bottom:1.5rem;font-size:.95rem">
+            ${lang==='zh'?'正在自动打包并下载您的壁纸...':'Packing and downloading your wallpaper...'}
+          </p>
+          <div id="wp-dl-status" style="color:var(--gold);font-size:.9rem;min-height:1.5rem;margin-bottom:2rem"></div>
+          <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+            <button class="btn btn-gold" onclick="goBack()">
+              ${lang==='zh'?'← 返回查看命盘':'← Back to Reading'}
+            </button>
+            ${pillars ? `<button class="btn" style="border:1px solid var(--gold);color:var(--gold);background:transparent"
+              onclick="autoDownloadWallpaperAfterPayment(window._wpPillars,'${wpElement}','${lang}')">
+              ${lang==='zh'?'重新下载':'Re-download'}
+            </button>` : ''}
+          </div>
+        </div>`;
+
+      if (pillars) {
+        window._wpPillars = pillars;
+        const dlEl = document.getElementById('wp-dl-status');
+        if (dlEl) dlEl.innerHTML = `<div class="step-spinner" style="display:inline-block;margin-right:.5rem"></div>${lang==='zh'?'正在生成壁纸...':'Generating wallpaper...'}`;
+        try {
+          await autoDownloadWallpaperAfterPayment(pillars, wpElement, lang);
+          if (dlEl) dlEl.innerHTML = `✅ ${lang==='zh'?'壁纸已开始下载，请查看浏览器下载区。':'Download started — check your browser downloads.'}`;
+        } catch(e) {
+          if (dlEl) dlEl.innerHTML = `⚠ ${lang==='zh'?'下载失败，请点击"重新下载"。':'Download failed, please click Re-download.'}`;
+        }
+      } else {
+        const dlEl = document.getElementById('wp-dl-status');
+        if (dlEl) dlEl.textContent = lang==='zh'?'⚠ 无法恢复命盘数据，请返回计算器重新获取壁纸。':'⚠ Could not restore chart data. Please return to calculator.';
+      }
+
+      // 清理 URL
+      const cu = new URL(window.location.href);
+      ['unlock','order_id','type','element','origHash'].forEach(k => cu.searchParams.delete(k));
+      window.history.replaceState({}, '', cu.toString());
+
+    } catch(err) {
+      console.error('WP payment error:', err);
+      document.getElementById('reading-loading').style.display = 'none';
+      document.getElementById('reading-error').style.display = 'block';
+      document.getElementById('error-msg').innerHTML = lang==='zh'
+        ? '支付验证超时。请等待1分钟后返回计算器，重新输入相同生日即可恢复。<br>Hash: <code>' + chartHash + '</code>'
+        : 'Verification timed out. Wait 1 minute, then re-enter your birth details on the calculator page.<br>Hash: <code>' + chartHash + '</code>';
+    }
+  })();
+} else {
+
+// ── 命盘解读主流程 ────────────────────────────────────
+(async function main() {
+  if (!chartHash) { showError(lang==='zh' ? '缺少命盘参数，请返回计算器重新操作。' : 'Missing chart parameter. Please return to the calculator.'); return; }
+
+  // 检查是否有 localStorage 缓存（相同 hash 直接恢复）
+  const cached = loadAnalysis(chartHash);
+  const cachedChart = (() => { try { return JSON.parse(localStorage.getItem('bazi_chart_' + chartHash) || ''); } catch { return null; } })();
+
+  if (cached && cachedChart && !isPending) {
+    // 完全从缓存恢复，无需任何网络请求
+    stepDone('step-verify');
+    stepDone('step-chart');
+    stepDone('step-ai');
+    stepDone('step-pdf');
+
+    window._currentChart = cachedChart;
+    document.getElementById('reading-loading').style.display = 'none';
+    document.getElementById('reading-result').style.display  = 'block';
+    document.getElementById('cache-banner').style.display    = 'flex';
+
+    renderReadingHeader(cachedChart);
+    renderBalance(cachedChart);
+    renderDayMaster(cachedChart);
+    renderMissing(cachedChart);
+    renderAnalysis(cached, lang);
+    renderWallpaperSection(cachedChart.pillars, cachedChart.dayMaster, cachedChart.missing, false, lang);
+    return;
+  }
+
+  // ── Step 1: 验证支付 ──
+  stepActive('step-verify');
+  let verifyResult;
+  try {
+    // Gumroad: 用 sessionKey；旧版: 用 chartHash
+    const verifyKey    = sessionKey || chartHash;
+    const isSessionMode = !!sessionKey;
+    verifyResult = await handlePaymentReturn(verifyKey, lang, (attempt, max) => {
+      const el = document.getElementById('step-verify');
+      if (el) {
+        const pct = Math.round(attempt/max*100);
+        const secLeft = Math.max(0, (max-attempt)*2);
+        el.querySelector('span.en') && (el.querySelector('span.en').textContent =
+          attempt < max ? `Verifying payment… (${pct}%, ~${secLeft}s left)` : 'Verifying payment…');
+        el.querySelector('span.zh') && (el.querySelector('span.zh').textContent =
+          attempt < max ? `验证支付中… (${pct}%，约${secLeft}秒)` : '验证支付中…');
+      }
+    }, isSessionMode);
+    // session模式下：verifyResult 里含有真实 chartHash，更新变量
+    if (isSessionMode && verifyResult?.chartHash) {
+      window._resolvedChartHash = verifyResult.chartHash;
+    }
+    stepDone('step-verify');
+  } catch (err) {
+    console.error('verify error:', err);
+    document.getElementById('reading-loading').style.display = 'none';
+    document.getElementById('reading-error').style.display   = 'block';
+    const isDelay = err.message.includes('not found') || err.message.includes('NOT_FOUND') || err.message.includes('not confirmed') || err.message.includes('multiple');
+    document.getElementById('error-msg').innerHTML = isDelay
+      ? (lang==='zh'
+          ? '⏳ 支付验证超时（Webhook 可能延迟）。<br><br>请等待约 1 分钟后，返回计算器页面<b>重新输入相同生日</b>，系统将自动恢复您的解读。<br><br>仍有问题请联系客服，Hash：<code style="font-size:.85rem;opacity:.7;background:rgba(255,255,255,.1);padding:.1rem .4rem;border-radius:4px">' + chartHash + '</code>'
+          : '⏳ Verification timed out (webhook may be delayed).<br><br>Please wait ~1 min, then <b>re-enter your birth details</b> on the calculator to restore your reading.<br><br>Still stuck? Contact support with hash: <code style="font-size:.85rem;opacity:.7;background:rgba(255,255,255,.1);padding:.1rem .4rem;border-radius:4px">' + chartHash + '</code>')
+      : (lang==='zh' ? '验证失败：' + err.message : 'Verification failed: ' + err.message);
+    return;
+  }
+
+  // ── Step 2: 恢复命盘数据 ──
+  stepActive('step-chart');
+  let chartData = null;
+
+  // 优先从 sessionStorage 恢复
+  try {
+    const saved = sessionStorage.getItem('bazi_chart');
+    if (saved) chartData = JSON.parse(saved);
+  } catch(e) {}
+
+  // 其次从 webhook 带回的 birthData 重新计算
+  if (!chartData && verifyResult?.birthData) {
+    try {
+      const bd = typeof verifyResult.birthData === 'string'
+        ? JSON.parse(verifyResult.birthData) : verifyResult.birthData;
+      if (bd?.y && bd?.m && bd?.d) {
+        const calc = calculateFourPillars(bd.y, bd.m, bd.d, bd.h || 11);
+        chartData = { ...calc, chartHash };
+      }
+    } catch(e) { console.warn('birthData parse failed', e); }
+  }
+
+  if (!chartData) {
+    // 没有命盘数据：显示提示，让用户去重新输入
+    document.getElementById('reading-loading').style.display = 'none';
+    document.getElementById('reading-result').style.display  = 'block';
+    document.getElementById('reading-result').innerHTML = `
+      <div class="calc-card" style="padding:2.5rem;text-align:center">
+        <div style="font-size:3rem;margin-bottom:1rem">✅</div>
+        <h2 style="margin-bottom:.75rem">${lang==='zh'?'支付成功！':'Payment Successful!'}</h2>
+        <p style="color:var(--gray);margin-bottom:2rem">${lang==='zh'
+          ? '请返回计算器，输入相同的出生信息即可查看您已解锁的完整解读。'
+          : 'Please return to the calculator and enter your birth details to view your unlocked reading.'}</p>
+        <button class="btn btn-gold btn-lg" onclick="goBack()">
+          ${lang==='zh' ? '← 返回计算器' : '← Go to Calculator'}
+        </button>
+      </div>`;
+    return;
+  }
+
+  window._currentChart = chartData;
+  // 把完整命盘存入 localStorage 供以后恢复
+  try { localStorage.setItem('bazi_chart_' + chartHash, JSON.stringify(chartData)); } catch(e) {}
+
+  stepDone('step-chart');
+
+  // 渲染命盘各区块
+  renderReadingHeader(chartData);
+  renderBalance(chartData);
+  renderDayMaster(chartData);
+  renderMissing(chartData);
+  // 隐藏 loading，显示结果区
+  document.getElementById('reading-loading').style.display = 'none';
+  document.getElementById('reading-result').style.display  = 'block';
+  // 显示支付成功提示
+  showUnlockSuccess(lang);
+
+  // ── Step 3: AI 解读 ──
+  stepActive('step-ai');
+  // 重新显示加载指示器（嵌在结果页内）
+  showAnalysisLoading(lang);
+
+  let analysis;
+  try {
+    analysis = await requestAnalysis(
+      chartData.pillars, chartData.balance, chartData.missing,
+      chartData.weak, chartData.strong, lang, chartHash
+    );
+    renderAnalysis(analysis, lang);
+    stepDone('step-ai');
+  } catch(err) {
+    const el = document.getElementById('ai-analysis-section');
+    if (el) el.innerHTML = `<div class="calc-card" style="padding:1.5rem;border-color:rgba(168,50,50,.3)">
+      <p style="color:var(--verm)">${lang==='zh'?'解读生成失败，请刷新重试。':'Analysis failed. Please refresh and try again.'}</p>
+    </div>`;
+  }
+
+  // ── Step 4: 自动下载 PDF ──
+  stepActive('step-pdf');
+  renderWallpaperSection(chartData.pillars, chartData.dayMaster, chartData.missing, false, lang);
+
+  if (analysis) {
+    // 短暂延迟让DOM渲染完再截图
+    await sleep(800);
+    try { window._downloadPDF(); stepDone('step-pdf'); }
+    catch(e) { console.warn('PDF download failed', e); stepDone('step-pdf'); }
+  } else {
+    stepDone('step-pdf');
+  }
+
+  // 清理 URL 参数
+  const cleanURL = new URL(window.location.href);
+  ['unlock','order_id'].forEach(k => cleanURL.searchParams.delete(k));
+  window.history.replaceState({}, '', cleanURL.toString());
+})();
+
+} // end else (非壁纸回调)
+</script>
+</body>
+</html>
